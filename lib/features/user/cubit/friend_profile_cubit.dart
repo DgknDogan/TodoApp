@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,24 +15,35 @@ class FriendProfileCubit extends Cubit<FriendProfileState> {
           FriendProfileState(
             isFriendActive: false,
             isFriendWithUser: false,
+            isRequestSent: false,
           ),
         ) {
     _getSearchedFriendRef();
     _isFriendWithUser();
+    _checkIsFriendshipRequestSent();
+    listenFriendRequests();
   }
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final LocalProfileCache _localCache = LocalProfileCache();
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _listener;
 
   void sendFriendshipRequest() async {
     final currentUser = await _localCache.getDataFromFirebase();
 
-    final sentUserDoc = _firestore.collection("User").doc(state.friendUid);
+    if (currentUser.name == null) {
+      return;
+    }
 
-    friend.incomingFriendRequestList?.add(_auth.currentUser!.uid);
+    final sentUserDoc = _firestore.collection("User").doc(state.friendUid);
+    final firendRef =
+        await _firestore.collection("User").doc(state.friendUid).get();
+    final currentFriend = UserModel.fromJson(firendRef.data()!);
+
+    currentFriend.incomingFriendRequestList?.add(_auth.currentUser!.uid);
     await sentUserDoc.update(
-      {"incomingFriendRequestList": friend.incomingFriendRequestList},
+      {"incomingFriendRequestList": currentFriend.incomingFriendRequestList},
     );
 
     currentUser.sentFriendRequestList?.add(state.friendUid);
@@ -39,6 +51,41 @@ class FriendProfileCubit extends Cubit<FriendProfileState> {
         _firestore.collection("User").doc(_auth.currentUser!.uid);
     await currentUserDoc.update(
       {"sentFriendRequestList": currentUser.sentFriendRequestList},
+    );
+  }
+
+  void cancelFriendshipRequest() async {
+    final currentUser = await _localCache.getDataFromFirebase();
+
+    final sentUserDoc = _firestore.collection("User").doc(state.friendUid);
+    final firendRef =
+        await _firestore.collection("User").doc(state.friendUid).get();
+    final currentFriend = UserModel.fromJson(firendRef.data()!);
+
+    currentFriend.incomingFriendRequestList?.remove(_auth.currentUser!.uid);
+    await sentUserDoc.update(
+      {"incomingFriendRequestList": currentFriend.incomingFriendRequestList},
+    );
+
+    currentUser.sentFriendRequestList?.remove(state.friendUid);
+    final currentUserDoc =
+        _firestore.collection("User").doc(_auth.currentUser!.uid);
+    await currentUserDoc.update(
+      {"sentFriendRequestList": currentUser.sentFriendRequestList},
+    );
+  }
+
+  void _checkIsFriendshipRequestSent() async {
+    final firendRef = await _firestore
+        .collection("User")
+        .where("name", isEqualTo: friend.name)
+        .get();
+    final currentFriend = UserModel.fromJson(firendRef.docs.first.data());
+    emit(
+      state.copyWith(
+        isRequestSent: currentFriend.incomingFriendRequestList!
+            .contains(_auth.currentUser!.uid),
+      ),
     );
   }
 
@@ -78,6 +125,23 @@ class FriendProfileCubit extends Cubit<FriendProfileState> {
       state.copyWith(
         isFriendWithUser: friend.friendsList?.contains(_auth.currentUser!.uid),
       ),
+    );
+  }
+
+  void cancelListener() async {
+    await _listener?.cancel();
+    _listener = null;
+  }
+
+  void listenFriendRequests() {
+    _listener = _firestore
+        .collection("User")
+        .doc(_auth.currentUser!.uid)
+        .snapshots()
+        .listen(
+      (event) {
+        _checkIsFriendshipRequestSent();
+      },
     );
   }
 }

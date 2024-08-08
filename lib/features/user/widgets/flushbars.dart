@@ -34,12 +34,6 @@ Flushbar<dynamic> errorFlushbar(String message) {
   return Flushbar(
     backgroundColor: Colors.red,
     blockBackgroundInteraction: true,
-    titleText: Center(
-      child: Text(
-        message,
-        style: const TextStyle(color: Colors.white),
-      ),
-    ),
     messageText: Center(
       child: Text(
         message,

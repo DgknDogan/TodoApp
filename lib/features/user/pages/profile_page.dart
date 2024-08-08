@@ -41,6 +41,13 @@ class _ProfilePageState extends State<ProfilePage> {
           return Scaffold(
             backgroundColor: Colors.white,
             appBar: AppBar(
+              leading: IconButton(
+                onPressed: () {
+                  context.read<ProfileCubit>().cancelListener();
+                  context.router.maybePop();
+                },
+                icon: const Icon(Icons.arrow_back),
+              ),
               toolbarHeight: 80.h,
               title: const Text("Profile"),
               flexibleSpace: Container(
@@ -114,33 +121,44 @@ class FriendsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCubit, HomeState>(builder: (context, state) {
-      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        state.newFriendRequestCount != 0
-            ? Text(
-                "${state.newFriendRequestCount} friend requests",
-                style: TextStyle(
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-            : const SizedBox(),
-        SizedBox(height: 20.h),
-        BlocBuilder<ProfileCubit, ProfileState>(builder: (context, state) {
-          return Column(children: [
-            ...state.friendReqList.map((user) {
-              return GestureDetector(
-                onTap: () =>
-                    context.router.push(FriendProfileRoute(friend: user)),
-                child: FriendRequestCard(
-                  name: user.name ?? "",
-                ),
-              );
-            })
-          ]);
-        })
-      ]);
-    });
+    return BlocBuilder<HomeCubit, HomeState>(
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            state.newFriendRequestCount != 0
+                ? Text(
+                    "${state.newFriendRequestCount} friend requests",
+                    style: TextStyle(
+                      fontSize: 24.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                : const SizedBox(),
+            SizedBox(height: 20.h),
+            BlocBuilder<ProfileCubit, ProfileState>(
+              builder: (context, state) {
+                return Column(
+                  children: [
+                    ...state.friendReqList.map(
+                      (user) {
+                        return GestureDetector(
+                          onTap: () => context.router
+                              .push(FriendProfileRoute(friend: user)),
+                          child: FriendRequestCard(
+                            name: user.name ?? "",
+                          ),
+                        );
+                      },
+                    )
+                  ],
+                );
+              },
+            )
+          ],
+        );
+      },
+    );
   }
 }
 

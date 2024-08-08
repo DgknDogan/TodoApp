@@ -110,7 +110,10 @@ class _SignUpFormSectionState extends State<SignUpFormSection> {
                   children: [
                     const FacebookButton(),
                     SizedBox(width: 20.w),
-                    const GoogleButton(),
+                    GoogleButton(
+                      signInWithGoogle:
+                          context.read<LoginCubit>().loginWithGoogle,
+                    ),
                   ],
                 ),
                 SizedBox(height: 16.h),

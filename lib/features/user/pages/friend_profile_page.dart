@@ -1,4 +1,6 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_demo/features/user/widgets/flushbars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +9,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../routes/app_router.gr.dart';
 import '../cubit/friend_profile_cubit.dart';
 import '../model/user_model.dart';
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 @RoutePage()
 class FriendProfilePage extends StatefulWidget {
@@ -25,22 +29,24 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
       child: BlocBuilder<FriendProfileCubit, FriendProfileState>(
         builder: (context, state) {
           return Scaffold(
-            floatingActionButton: FloatingActionButton(
-              backgroundColor: Colors.blue,
-              child: const Icon(
-                Icons.message,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                context.router.push(MessageRoute(friend: widget.friend));
-              },
-            ),
+            floatingActionButton: state.isFriendWithUser!
+                ? FloatingActionButton(
+                    backgroundColor: Colors.blue,
+                    child: const Icon(
+                      Icons.message,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      context.router.push(MessageRoute(friend: widget.friend));
+                    },
+                  )
+                : const SizedBox(),
             appBar: AppBar(
               systemOverlayStyle: const SystemUiOverlayStyle(
                   systemNavigationBarColor: Colors.white),
               leading: IconButton(
                   onPressed: () {
-                    context.read<FriendProfileCubit>().close();
+                    context.read<FriendProfileCubit>().cancelListener();
                     context.router.maybePop();
                   },
                   icon: const Icon(Icons.arrow_back)),
@@ -63,15 +69,28 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
                     : Container(
                         padding: EdgeInsets.only(right: 20.w),
                         child: GestureDetector(
-                          onTap: () {
-                            context
-                                .read<FriendProfileCubit>()
-                                .sendFriendshipRequest();
+                          onTap: () async {
+                            if (state.isRequestSent) {
+                              context
+                                  .read<FriendProfileCubit>()
+                                  .cancelFriendshipRequest();
+                            } else {
+                              if (_auth.currentUser!.displayName == null) {
+                                errorFlushbar("Set you name!!!").show(context);
+                              }
+                              context
+                                  .read<FriendProfileCubit>()
+                                  .sendFriendshipRequest();
+                            }
                           },
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(Icons.add),
-                              Text("Add friend"),
+                              !state.isRequestSent
+                                  ? const Icon(Icons.add)
+                                  : const Icon(Icons.cancel_sharp),
+                              !state.isRequestSent
+                                  ? const Text("Add friend")
+                                  : const Text("Cancel"),
                             ],
                           ),
                         ),

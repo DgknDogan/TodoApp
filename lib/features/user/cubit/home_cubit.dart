@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
-
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,28 +21,23 @@ class HomeCubit extends Cubit<HomeState> {
             data: const [],
             count: 0,
             isChartDeleted: true,
+            isLoading: false,
             upcomingTodos: [],
             newFriendRequestCount: 0,
           ),
         ) {
-    getTopUsers();
     _isChartDeleted();
-    initializeChartData();
-    getUpcomingTodos();
-    getFriendRequestCount();
-    countProfileData();
-    getNewMessageNotifiaction();
   }
 
   final LocalProfileCache _localCache = LocalProfileCache();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  late final StreamSubscription<QuerySnapshot<Map<String, dynamic>>> _listener;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _listener;
 
-  @override
-  Future<void> close() async {
-    await _listener.cancel();
-    return super.close();
+  void cancelListener() async {
+    await _listener?.cancel();
+
+    _listener = null;
   }
 
   void _isChartDeleted() async {
@@ -129,13 +122,14 @@ class HomeCubit extends Cubit<HomeState> {
           firstTime = false;
           return;
         }
-        log(event.docChanges.length.toString());
-        final lastMessage =
-            (event.docChanges.last.doc.data()!['messageFrom'] as List).last;
-        service.showNotification(
-          title: "Yeni Mesaj",
-          body: lastMessage['text'],
-        );
+        if (event.docChanges.isNotEmpty) {
+          final lastMessage =
+              (event.docChanges.last.doc.data()!['messageFrom'] as List).last;
+          service.showNotification(
+            title: "Yeni Mesaj",
+            body: lastMessage['text'],
+          );
+        }
       },
     );
   }
@@ -143,7 +137,7 @@ class HomeCubit extends Cubit<HomeState> {
   //
   void logOut() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await FirebaseAuth.instance.signOut();
+    await _auth.signOut();
     prefs.setBool("isRemembered", false);
   }
 
@@ -164,22 +158,48 @@ class HomeCubit extends Cubit<HomeState> {
       topUserList.add(user);
     }
 
-    final sortedTopUsers = topUserList
+    final usersWithNames = topUserList
         .where(
           (user) => user.name != null,
         )
-        .toList()
-      ..sublist(0, 3)
-      ..sort(
-        (a, b) => b.points.compareTo(a.points),
-      )
-      ..toList();
+        .toList();
 
-    emit(state.copyWith(
-      firstUser: sortedTopUsers[0],
-      secondUser: sortedTopUsers[1],
-      thirdUser: sortedTopUsers[2],
-    ));
+    List<dynamic> sortedTopUsers = List.filled(3, null);
+    if (usersWithNames.length > 3) {
+      final sortedUsers = usersWithNames
+        ..sublist(0, 3)
+        ..sort(
+          (a, b) => b.points.compareTo(a.points),
+        )
+        ..toList();
+      int i = 0;
+      for (var user in sortedUsers) {
+        sortedTopUsers.insert(i, user);
+        i++;
+      }
+      emit(state.copyWith(
+        firstUser: sortedTopUsers[0],
+        secondUser: sortedTopUsers[1],
+        thirdUser: sortedTopUsers[2],
+        isLoading: true,
+      ));
+    } else if (usersWithNames.length < 3 && usersWithNames.isNotEmpty) {
+      final sortedUsers = usersWithNames
+        ..sort(
+          (a, b) => b.points.compareTo(a.points),
+        )
+        ..toList();
+
+      for (var i = 0; i < usersWithNames.length; i++) {
+        sortedTopUsers[i] = sortedUsers[i];
+      }
+
+      emit(state.copyWith(
+        firstUser: sortedTopUsers[0],
+        secondUser: sortedTopUsers[1],
+        thirdUser: sortedTopUsers[2],
+      ));
+    }
   }
 
   void getUserName() async {

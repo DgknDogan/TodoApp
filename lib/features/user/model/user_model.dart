@@ -65,13 +65,13 @@ class UserModel {
       'name': name,
       'surname': surname,
       'phoneNumber': phoneNumber,
-      'todoList': todoList?.map((item) => item.toJson()).toList(),
-      'isRemembered': isRemembered,
+      'todoList': todoList?.map((item) => item.toJson()).toList() ?? [],
+      'isRemembered': isRemembered ?? false,
       'points': points,
-      'friendsList': friendsList,
-      'incomingFriendRequestList': incomingFriendRequestList,
-      'sentFriendRequestList': sentFriendRequestList,
-      'isActive': isActive,
+      'friendsList': friendsList ?? [],
+      'incomingFriendRequestList': incomingFriendRequestList ?? [],
+      'sentFriendRequestList': sentFriendRequestList ?? [],
+      'isActive': isActive ?? false,
     };
   }
 

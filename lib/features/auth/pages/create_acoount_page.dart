@@ -28,6 +28,10 @@ class CreateAccountPage extends HookWidget {
         listener: (context, state) {
           if (state is RegisterSuccess) {
             successFlushbar(state.message).show(context);
+            mailController.clear();
+            passwordController.clear();
+            context.read<RegisterCubit>().initializeState();
+            context.router.push(const LoginRoute());
           }
           if (state is RegisterError) {
             errorFlushbar(state.message).show(context);
@@ -99,7 +103,10 @@ class _SignUpFormSectionState extends State<SignUpFormSection> {
                   children: [
                     const FacebookButton(),
                     SizedBox(width: 20.w),
-                    const GoogleButton(),
+                    GoogleButton(
+                      signInWithGoogle:
+                          context.read<RegisterCubit>().loginWithGoogle,
+                    ),
                   ],
                 ),
                 SizedBox(height: 16.h),
@@ -125,9 +132,7 @@ class _SignUpFormSectionState extends State<SignUpFormSection> {
 }
 
 class CheckBoxRow extends StatelessWidget {
-  const CheckBoxRow({
-    super.key,
-  });
+  const CheckBoxRow({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -149,23 +154,41 @@ class CheckBoxRow extends StatelessWidget {
               },
             ),
             SizedBox(width: 14.w),
-            Text.rich(
-              const TextSpan(
-                children: [
-                  TextSpan(text: "I’m agree to "),
-                  TextSpan(
-                      text: "The Terms of Service ",
-                      style: TextStyle(color: Color(0xff3461FD))),
-                  TextSpan(text: "and"),
-                  TextSpan(
-                      text: " Privacy Policy",
-                      style: TextStyle(color: Color(0xff3461FD))),
-                ],
+            GestureDetector(
+              onTap: () => showBottomSheet(
+                context: context,
+                backgroundColor: Colors.grey.shade200,
+                builder: (context) {
+                  return Container(
+                    height: 300.h,
+                    padding: EdgeInsets.all(24.r),
+                    child: const Column(
+                      children: [
+                        Text(
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet tellus nec ornare hendrerit. Vivamus a arcu tellus. Sed ut ex ut nisi porttitor convallis. Vestibulum efficitur metus id tristique auctor. Mauris mollis orci at leo luctus ornare. Ut elementum sapien non elit congue ullamcorper. Proin nec ex in nisl vestibulum consectetur. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse ornare lorem et nisi sagittis, vel imperdiet urna faucibus.")
+                      ],
+                    ),
+                  );
+                },
               ),
-              // softWrap: true,
-              overflow: TextOverflow.clip,
-              style: TextStyle(
-                fontSize: 12.sp,
+              child: Text.rich(
+                const TextSpan(
+                  children: [
+                    TextSpan(text: "I’m agree to "),
+                    TextSpan(
+                        text: "The Terms of Service ",
+                        style: TextStyle(color: Color(0xff3461FD))),
+                    TextSpan(text: "and"),
+                    TextSpan(
+                        text: " Privacy Policy",
+                        style: TextStyle(color: Color(0xff3461FD))),
+                  ],
+                ),
+                // softWrap: true,
+                overflow: TextOverflow.clip,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                ),
               ),
             )
           ],
@@ -201,8 +224,9 @@ class CreateAccountSection extends StatelessWidget {
             ),
             SizedBox(height: 16.h),
             SingInRowText(
-                mailController: mailController,
-                passwordController: passwordController)
+              mailController: mailController,
+              passwordController: passwordController,
+            )
           ],
         );
       },

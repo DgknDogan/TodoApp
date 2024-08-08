@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
@@ -6,8 +7,7 @@ class NotificationService {
 
   Future<void> initializeNotifiacitons() async {
     AndroidInitializationSettings initSettingsAndroid =
-        const AndroidInitializationSettings("flutter_logo");
-        
+        const AndroidInitializationSettings("ic_stat_done");
 
     var initSettings = InitializationSettings(android: initSettingsAndroid);
 
@@ -37,6 +37,9 @@ class NotificationService {
         "channelId",
         "channelName",
         importance: Importance.max,
+        priority: Priority.max,
+        color: Colors.black,
+        icon: "ic_stat_done",
       ),
     );
   }

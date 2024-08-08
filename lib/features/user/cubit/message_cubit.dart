@@ -259,7 +259,10 @@ class MessageCubit extends Cubit<MessageState> {
         .map((item) => MessageModel.fromJson(item))
         .toList();
 
-    if (messageToList.contains(message) || messageFromList.contains(message)) {
+    if ((messageToList.contains(message) &&
+            !messageFromList.contains(message)) ||
+        (!messageToList.contains(message) &&
+            messageFromList.contains(message))) {
       removeFromMe(message);
       return;
     }

@@ -22,7 +22,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   void initState() {
-    context.read<HomeCubit>().getUserName();
+    context.read<HomeCubit>()
+      ..getNewMessageNotifiaction()
+      ..getUserName()
+      ..getTopUsers()
+      ..initializeChartData()
+      ..getUpcomingTodos()
+      ..getFriendRequestCount()
+      ..countProfileData();
     super.initState();
   }
 
@@ -61,6 +68,7 @@ class _HomePageState extends State<HomePage> {
                 const Duration(seconds: 1),
                 () {
                   context.read<HomeCubit>().getTopUsers();
+                  context.read<HomeCubit>().getUserName();
                   context.read<HomeCubit>().getFriendRequestCount();
                 },
               );
@@ -122,21 +130,21 @@ class TodoLeaderboard extends StatelessWidget {
                   // Second place
                   TopUser(
                     containerHeight: 40,
-                    user: state.secondUser!,
+                    user: state.secondUser,
                     userPlace: 2,
                     color: Colors.grey,
                   ),
                   // First place
                   TopUser(
                     containerHeight: 50,
-                    user: state.firstUser!,
+                    user: state.firstUser,
                     userPlace: 1,
                     color: Colors.amber,
                   ),
                   // Thi
                   TopUser(
                     containerHeight: 30,
-                    user: state.thirdUser!,
+                    user: state.thirdUser,
                     userPlace: 3,
                     color: Colors.orange,
                   ),
@@ -168,7 +176,7 @@ class TodoLeaderboard extends StatelessWidget {
 }
 
 class TopUser extends StatelessWidget {
-  final UserModel user;
+  final UserModel? user;
   final int userPlace;
   final int containerHeight;
   final Color color;
@@ -186,8 +194,8 @@ class TopUser extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Text(user.name ?? ""),
-        Text("points: ${user.points}"),
+        Text(user?.name ?? ""),
+        user != null ? Text("points: ${user?.points}") : const SizedBox(),
         Container(
           width: 75.w,
           height: containerHeight.h,
@@ -584,18 +592,14 @@ class LogOutButton extends StatelessWidget {
           backgroundColor: const WidgetStatePropertyAll(Color(0xff3461FD)),
         ),
         onPressed: () {
-          final cubit = context.read<HomeCubit>();
           showDialog(
             context: context,
             builder: (context) {
-              return BlocProvider.value(
-                value: cubit,
-                child: AlertDialog(
-                  title: const Text("You are logging out"),
-                  content: const Text("Are you sure?"),
-                  actionsAlignment: MainAxisAlignment.spaceEvenly,
-                  actions: [LogOutDialogButtons(cubit: cubit)],
-                ),
+              return const AlertDialog(
+                title: Text("You are logging out"),
+                content: Text("Are you sure?"),
+                actionsAlignment: MainAxisAlignment.spaceEvenly,
+                actions: [LogOutDialogButtons()],
               );
             },
           );
@@ -613,12 +617,12 @@ class LogOutButton extends StatelessWidget {
 }
 
 class LogOutDialogButtons extends StatelessWidget {
-  final HomeCubit cubit;
-  const LogOutDialogButtons({super.key, required this.cubit});
+  const LogOutDialogButtons({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         ElevatedButton(
           onPressed: () async {
@@ -642,8 +646,10 @@ class LogOutDialogButtons extends StatelessWidget {
           ),
         ),
         ElevatedButton(
-          onPressed: () async {
-            cubit.logOut();
+          onPressed: () {
+            context.read<HomeCubit>().logOut();
+            context.read<HomeCubit>().cancelListener();
+            context.router.maybePop();
             context.router.replace(const LoginRoute());
           },
           style: ButtonStyle(

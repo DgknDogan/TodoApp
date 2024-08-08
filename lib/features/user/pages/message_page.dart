@@ -237,51 +237,57 @@ class MessageCard extends StatelessWidget {
       alignment: message.friendUserUid == _auth.currentUser!.uid
           ? Alignment.centerRight
           : Alignment.centerLeft,
-      child: InkWell(
-        key: globalKey,
-        onLongPress: () async {
-          final cubit = context.read<MessageCubit>();
-          final RenderBox renderBox =
-              globalKey.currentContext!.findRenderObject() as RenderBox;
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 10.h),
+        child: InkWell(
+          splashColor: message.friendUserUid == _auth.currentUser!.uid
+              ? Colors.green.shade800
+              : Colors.blue.shade800,
+          borderRadius: BorderRadius.circular(45.r),
+          key: globalKey,
+          onLongPress: () async {
+            final cubit = context.read<MessageCubit>();
+            final RenderBox renderBox =
+                globalKey.currentContext!.findRenderObject() as RenderBox;
 
-          final Offset offset = renderBox.localToGlobal(Offset.zero);
-          final Size size = renderBox.size;
-          await showMenu(
-            context: context,
-            position: RelativeRect.fromLTRB(
-              offset.dx, // Sol kenar
-              offset.dy + size.height, // Alt kenar
-              offset.dx, // Sağ kenar
-              offset.dy, // Üst kenar
+            final Offset offset = renderBox.localToGlobal(Offset.zero);
+            final Size size = renderBox.size;
+            await showMenu(
+              context: context,
+              position: RelativeRect.fromLTRB(
+                offset.dx, // Sol kenar
+                offset.dy + size.height, // Alt kenar
+                offset.dx, // Sağ kenar
+                offset.dy, // Üst kenar
+              ),
+              items: [
+                PopupMenuItem(
+                  onTap: () => cubit.removeFromEverybody(message),
+                  child: const Text("Remove from everybody"),
+                ),
+                PopupMenuItem(
+                  onTap: () => cubit.removeFromMe(message),
+                  child: const Text("Remove from me"),
+                ),
+              ],
+            );
+          },
+          child: Ink(
+            padding: EdgeInsets.all(10.r),
+            decoration: BoxDecoration(
+              color: message.friendUserUid != _auth.currentUser!.uid
+                  ? Colors.blue.shade100
+                  : Colors.green.shade100,
+              borderRadius: BorderRadius.circular(45.r),
             ),
-            items: [
-              PopupMenuItem(
-                onTap: () => cubit.removeFromEverybody(message),
-                child: const Text("Remove from everybody"),
-              ),
-              PopupMenuItem(
-                onTap: () => cubit.removeFromMe(message),
-                child: const Text("Remove from me"),
-              ),
-            ],
-          );
-        },
-        child: Container(
-          margin: EdgeInsets.symmetric(vertical: 10.h),
-          padding: EdgeInsets.all(10.r),
-          decoration: BoxDecoration(
-            color: message.friendUserUid != _auth.currentUser!.uid
-                ? Colors.blue.shade100
-                : Colors.green.shade100,
-            borderRadius: BorderRadius.circular(45.r),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(message.text),
-              SizedBox(height: 3.h),
-              Text(message.time.toString()),
-            ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(message.text),
+                SizedBox(height: 3.h),
+                Text(message.time.toString()),
+              ],
+            ),
           ),
         ),
       ),

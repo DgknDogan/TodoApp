@@ -1,9 +1,14 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_demo/features/user/data/enums/auth_error_codes_enum.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../user/model/user_model.dart';
 part 'login_state.dart';
 
 class LoginCubit extends Cubit<LoginState> {
@@ -22,6 +27,43 @@ class LoginCubit extends Cubit<LoginState> {
   void showHidePassword() {
     final initialState = (state as LoginInitial);
     emit(initialState.copyWith(isObsecured: !initialState.isObsecured));
+  }
+
+  Future<void> loginWithGoogle() async {
+    try {
+      final googleUser = await GoogleSignIn().signIn();
+
+      final googleAuth = await googleUser?.authentication;
+
+      final cred = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+
+      await _auth.signInWithCredential(cred);
+
+      final querySnapshot = await _firestore.collection("User").get();
+
+      final List<String> idList = [];
+      for (var doc in querySnapshot.docs) {
+        idList.add(doc.id);
+      }
+
+      if (!idList.contains(_auth.currentUser!.uid)) {
+        final UserModel newUser = UserModel(
+          points: 0,
+          email: _auth.currentUser!.email,
+          name: _auth.currentUser!.displayName,
+        );
+
+        final users = _firestore.collection("User").doc(_auth.currentUser!.uid);
+        users.set(newUser.toJson());
+        users.collection("MessageTo").doc("initial").set({"messageTo": []});
+        users.collection("MessageFrom").doc("initial").set({"messageFrom": []});
+      }
+    } catch (e) {
+      log(e.toString());
+    }
   }
 
   /// Login with email and password

@@ -22,7 +22,7 @@ class _SplashPageState extends State<SplashPage>
   @override
   void initState() {
     _controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 3));
+        AnimationController(vsync: this, duration: const Duration(seconds: 4));
     const beginColor = Colors.red;
     const endColor = Colors.green;
 
@@ -30,7 +30,7 @@ class _SplashPageState extends State<SplashPage>
       begin: beginColor,
       end: endColor,
     ).animate(_controller);
-
+    context.read<HomeCubit>().getTopUsers();
     _controller.forward();
     super.initState();
   }
@@ -48,16 +48,15 @@ class _SplashPageState extends State<SplashPage>
       child: BlocConsumer<SplashCubit, SplashState>(
         listener: (context, state) {
           if (state.isRemembered) {
-            context.read<HomeCubit>().getTopUsers();
             Future.delayed(
-              const Duration(seconds: 3),
+              const Duration(seconds: 4),
               () {
                 context.router.push(const InitialRoute());
               },
             );
           } else {
             Future.delayed(
-              const Duration(seconds: 3),
+              const Duration(seconds: 4),
               () {
                 context.router.push(const CreateAccountRoute());
               },

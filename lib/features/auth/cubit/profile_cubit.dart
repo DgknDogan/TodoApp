@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,10 +25,12 @@ class ProfileCubit extends Cubit<ProfileState> {
         ) {
     getDataFromCache();
     getFriendRequestList();
+    listenFriendRequests();
   }
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _listener;
 
   void saveName(String name) async {
     _firestore
@@ -94,6 +98,24 @@ class ProfileCubit extends Cubit<ProfileState> {
     homeCubit.getFriendRequestCount();
   }
 
+  void cancelListener() async {
+    await _listener?.cancel();
+    _listener = null;
+  }
+
+  void listenFriendRequests() {
+    _listener = _firestore
+        .collection("User")
+        .doc(_auth.currentUser!.uid)
+        .snapshots()
+        .listen(
+      (event) {
+        getFriendRequestList();
+        homeCubit.getFriendRequestCount();
+      },
+    );
+  }
+
   void acceptFriendship(String name) async {
     final currentUser = await LocalProfileCache().getDataFromFirebase();
     final list = List.from(currentUser.incomingFriendRequestList!.toList());
@@ -111,12 +133,33 @@ class ProfileCubit extends Cubit<ProfileState> {
             "incomingFriendRequestList": currentUser.incomingFriendRequestList,
           },
         );
+
+        await _firestore
+            .collection("User")
+            .doc(_auth.currentUser!.uid)
+            .collection("MessageTo")
+            .doc(acceptedFriendDoc.id)
+            .set({"messageTo": []});
+        await _firestore
+            .collection("User")
+            .doc(_auth.currentUser!.uid)
+            .collection("MessageFrom")
+            .doc(acceptedFriendDoc.id)
+            .set({"messageFrom": []});
         acceptedFriend.sentFriendRequestList?.remove(_auth.currentUser!.uid);
         acceptedFriend.friendsList?.add(_auth.currentUser!.uid);
         acceptedFriendDoc.update({
           "friendsList": acceptedFriend.friendsList,
           "sentFriendRequestList": acceptedFriend.sentFriendRequestList,
         });
+        await acceptedFriendDoc
+            .collection("MessageTo")
+            .doc(_auth.currentUser!.uid)
+            .set({"messageTo": []});
+        await acceptedFriendDoc
+            .collection("MessageFrom")
+            .doc(_auth.currentUser!.uid)
+            .set({"messageFrom": []});
       }
     }
     getFriendRequestList();
