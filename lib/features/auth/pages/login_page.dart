@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -21,6 +22,7 @@ class LoginPage extends HookWidget {
   Widget build(BuildContext context) {
     final mailController = useTextEditingController();
     final passwordController = useTextEditingController();
+    FirebaseAuth auth = FirebaseAuth.instance;
     double width = MediaQuery.of(context).size.width;
     return BlocProvider(
       create: (context) => LoginCubit(),
@@ -35,7 +37,11 @@ class LoginPage extends HookWidget {
             Future.delayed(
               const Duration(milliseconds: 2000),
               () {
-                context.router.push(const HomeRoute());
+                if (auth.currentUser?.displayName != null) {
+                  context.router.push(const HomeRoute());
+                } else {
+                  context.router.push(const SetNameRoute());
+                }
                 context.read<LoginCubit>().initializeState();
                 mailController.clear();
                 passwordController.clear();

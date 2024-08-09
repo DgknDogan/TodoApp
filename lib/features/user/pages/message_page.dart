@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
@@ -23,12 +22,11 @@ class MessagePage extends StatefulWidget {
   State<MessagePage> createState() => _MessagePageState();
 }
 
-class _MessagePageState extends State<MessagePage> with WidgetsBindingObserver {
+class _MessagePageState extends State<MessagePage> {
   late final ScrollController scrollController;
 
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
     scrollController = ScrollController();
     super.initState();
   }
@@ -37,22 +35,6 @@ class _MessagePageState extends State<MessagePage> with WidgetsBindingObserver {
   void dispose() {
     scrollController.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    final FirebaseAuth auth = FirebaseAuth.instance;
-    final FirebaseFirestore firestore = FirebaseFirestore.instance;
-    final users = firestore.collection("User").doc(auth.currentUser!.uid);
-    if (state == AppLifecycleState.resumed) {
-      users.update({
-        "isActive": true,
-      });
-    } else {
-      users.update({
-        "isActive": false,
-      });
-    }
   }
 
   @override
@@ -260,16 +242,23 @@ class MessageCard extends StatelessWidget {
                 offset.dx, // Sağ kenar
                 offset.dy, // Üst kenar
               ),
-              items: [
-                PopupMenuItem(
-                  onTap: () => cubit.removeFromEverybody(message),
-                  child: const Text("Remove from everybody"),
-                ),
-                PopupMenuItem(
-                  onTap: () => cubit.removeFromMe(message),
-                  child: const Text("Remove from me"),
-                ),
-              ],
+              items: message.friendUserUid == _auth.currentUser!.uid
+                  ? [
+                      PopupMenuItem(
+                        onTap: () => cubit.removeFromEverybody(message),
+                        child: const Text("Remove from everybody"),
+                      ),
+                      PopupMenuItem(
+                        onTap: () => cubit.removeFromMe(message),
+                        child: const Text("Remove from me"),
+                      ),
+                    ]
+                  : [
+                      PopupMenuItem(
+                        onTap: () => cubit.removeFromMe(message),
+                        child: const Text("Remove from me"),
+                      ),
+                    ],
             );
           },
           child: Ink(

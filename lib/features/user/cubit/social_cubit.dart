@@ -28,7 +28,7 @@ class FriendCubit extends Cubit<SocialState> {
 
     final List<UserModel> suggestedList = [];
     for (var user in usersList) {
-      if (user.name!.toLowerCase().contains(name)) {
+      if (user.name!.toLowerCase().contains(name.toLowerCase())) {
         suggestedList.add(user);
       }
     }
@@ -54,7 +54,7 @@ class FriendCubit extends Cubit<SocialState> {
 
     final List<UserModel> suggestedList = [];
     for (var user in usersList) {
-      if (user.name!.toLowerCase().contains(search)) {
+      if (user.name!.toLowerCase().contains(search.toLowerCase())) {
         suggestedList.add(user);
       }
     }

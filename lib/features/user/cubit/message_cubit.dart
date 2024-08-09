@@ -20,19 +20,21 @@ class MessageCubit extends Cubit<MessageState> {
             isFriendActive: false,
           ),
         ) {
-    _checkUserIsActive();
-    listenChanges();
+    listenMessageChanges();
+    listenUserActivityChanges();
   }
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  late StreamSubscription<DocumentSnapshot<Map<String, dynamic>>> _listener;
-  late Timer _timer;
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _messageListener;
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _activityListener;
 
   @override
   Future<void> close() async {
-    await _listener.cancel();
-    _timer.cancel();
+    await _messageListener?.cancel();
+    await _activityListener?.cancel();
+    _messageListener = null;
+    _activityListener = null;
     return super.close();
   }
 
@@ -42,13 +44,6 @@ class MessageCubit extends Cubit<MessageState> {
         .where("name", isEqualTo: friend.name)
         .get();
     return freindRef;
-  }
-
-  void _checkUserIsActive() {
-    _timer = Timer.periodic(
-      const Duration(milliseconds: 500),
-      (timer) => _isFriendActive(),
-    );
   }
 
   void _isFriendActive() async {
@@ -62,10 +57,10 @@ class MessageCubit extends Cubit<MessageState> {
     emit(state.copyWith(isFriendActive: currentFriend.isActive));
   }
 
-  void listenChanges() async {
+  void listenMessageChanges() async {
     final searchedFriendRef = await _getFriendRef();
 
-    _listener = _firestore
+    _messageListener ??= _firestore
         .collection("User")
         .doc(_auth.currentUser!.uid)
         .collection("MessageFrom")
@@ -73,12 +68,26 @@ class MessageCubit extends Cubit<MessageState> {
         .snapshots()
         .listen(
       (snapshot) {
-        getMessagesFromUsers(friend);
+        getMessagesFromUsers();
       },
     );
   }
 
-  void getMessagesFromUsers(UserModel friend) async {
+  void listenUserActivityChanges() async {
+    final friendQuerySnapshot = await _getFriendRef();
+
+    _activityListener ??= _firestore
+        .collection("User")
+        .doc(friendQuerySnapshot.docs.first.id)
+        .snapshots()
+        .listen(
+      (snapshot) {
+        _isFriendActive();
+      },
+    );
+  }
+
+  void getMessagesFromUsers() async {
     final searchedFriendRef = await _getFriendRef();
 
     final List<MessageModel> updatedMessageList = [];
@@ -178,7 +187,7 @@ class MessageCubit extends Cubit<MessageState> {
       },
     );
 
-    getMessagesFromUsers(friend);
+    getMessagesFromUsers();
   }
 
   void removeFromMe(MessageModel message) async {
@@ -219,7 +228,7 @@ class MessageCubit extends Cubit<MessageState> {
         "messageFrom": messageFromList.map((item) => item.toJson()).toList(),
       });
     }
-    getMessagesFromUsers(friend);
+    getMessagesFromUsers();
   }
 
   void removeFromEverybody(MessageModel message) async {
@@ -283,6 +292,6 @@ class MessageCubit extends Cubit<MessageState> {
         "messageTo": messageFromList.map((item) => item.toJson()),
       });
     }
-    getMessagesFromUsers(friend);
+    getMessagesFromUsers();
   }
 }

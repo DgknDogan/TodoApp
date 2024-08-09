@@ -6,9 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 
-import '../../user/cubit/home_cubit.dart';
-import '../../user/data/profile_local_data.dart';
-import '../../user/model/user_model.dart';
+import 'home_cubit.dart';
+import '../data/profile_local_data.dart';
+import '../model/user_model.dart';
 
 part 'profile_state.dart';
 
@@ -21,6 +21,7 @@ class ProfileCubit extends Cubit<ProfileState> {
             surname: "",
             phoneNumber: "",
             friendReqList: [],
+            isFriendshipListLoading: true,
           ),
         ) {
     getDataFromCache();
@@ -87,6 +88,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   }
 
   void getFriendRequestList() async {
+    emit(state.copyWith(isFriendshipListLoading: true));
     final currentUser = await LocalProfileCache().getDataFromFirebase();
     final List<UserModel> friendReqList = [];
     for (var userUid in currentUser.incomingFriendRequestList ?? []) {
@@ -94,7 +96,10 @@ class ProfileCubit extends Cubit<ProfileState> {
       final friendData = friendRef.data();
       friendReqList.add(UserModel.fromJson(friendData!));
     }
-    emit(state.copyWith(friendReqList: friendReqList));
+    emit(state.copyWith(
+      friendReqList: friendReqList,
+      isFriendshipListLoading: false,
+    ));
     homeCubit.getFriendRequestCount();
   }
 

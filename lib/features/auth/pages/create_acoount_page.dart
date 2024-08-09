@@ -28,10 +28,15 @@ class CreateAccountPage extends HookWidget {
         listener: (context, state) {
           if (state is RegisterSuccess) {
             successFlushbar(state.message).show(context);
-            mailController.clear();
-            passwordController.clear();
-            context.read<RegisterCubit>().initializeState();
-            context.router.push(const LoginRoute());
+            Future.delayed(
+              const Duration(seconds: 2),
+              () {
+                context.read<RegisterCubit>().initializeState();
+                context.router.push(const LoginRoute());
+                mailController.clear();
+                passwordController.clear();
+              },
+            );
           }
           if (state is RegisterError) {
             errorFlushbar(state.message).show(context);

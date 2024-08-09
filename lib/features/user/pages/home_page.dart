@@ -1,4 +1,6 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,7 +21,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     context.read<HomeCubit>()
@@ -30,7 +32,24 @@ class _HomePageState extends State<HomePage> {
       ..getUpcomingTodos()
       ..getFriendRequestCount()
       ..countProfileData();
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    final users = firestore.collection("User").doc(auth.currentUser!.uid);
+    if (state == AppLifecycleState.resumed) {
+      users.update({
+        "isActive": true,
+      });
+    } else {
+      users.update({
+        "isActive": false,
+      });
+    }
   }
 
   @override

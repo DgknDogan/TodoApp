@@ -6,16 +6,10 @@ Flushbar<dynamic> successFlushbar(String message) {
   return Flushbar(
     backgroundColor: Colors.green,
     blockBackgroundInteraction: true,
-    titleText: Center(
+    messageText: Center(
       child: Text(
         message,
         style: const TextStyle(color: Colors.white),
-      ),
-    ),
-    messageText: const Center(
-      child: Text(
-        "Logging in",
-        style: TextStyle(color: Colors.white),
       ),
     ),
     duration: const Duration(seconds: 2),

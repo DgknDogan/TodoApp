@@ -36,7 +36,6 @@ class HomeCubit extends Cubit<HomeState> {
 
   void cancelListener() async {
     await _listener?.cancel();
-
     _listener = null;
   }
 
@@ -72,6 +71,18 @@ class HomeCubit extends Cubit<HomeState> {
     emit(
       state.copyWith(data: data),
     );
+  }
+
+  void saveName(String name) async {
+    _firestore
+        .collection("User")
+        .doc(_auth.currentUser!.uid)
+        .update({"name": name});
+
+    initializeChartData();
+    countProfileData();
+
+    await _auth.currentUser!.updateDisplayName(name);
   }
 
   void getUpcomingTodos() async {
@@ -122,13 +133,16 @@ class HomeCubit extends Cubit<HomeState> {
           firstTime = false;
           return;
         }
-        if (event.docChanges.isNotEmpty) {
-          final lastMessage =
-              (event.docChanges.last.doc.data()!['messageFrom'] as List).last;
-          service.showNotification(
-            title: "Yeni Mesaj",
-            body: lastMessage['text'],
-          );
+        for (var change in event.docChanges) {
+          if (change.type == DocumentChangeType.added) {
+            final lastMessageList = change.doc.data()!['messageFrom'];
+            if (lastMessageList.isNotEmpty) {
+              service.showNotification(
+                title: "Yeni Mesaj",
+                body: "asd",
+              );
+            }
+          }
         }
       },
     );
@@ -137,8 +151,16 @@ class HomeCubit extends Cubit<HomeState> {
   //
   void logOut() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await _auth.signOut();
     prefs.setBool("isRemembered", false);
+
+    _firestore.collection("User").doc(_auth.currentUser!.uid).update(
+      {
+        "isActive": false,
+        "isRemembered": false,
+      },
+    );
+
+    await _auth.signOut();
   }
 
   void deleteChartCard() async {
@@ -204,5 +226,9 @@ class HomeCubit extends Cubit<HomeState> {
 
   void getUserName() async {
     emit(state.copyWith(userName: _auth.currentUser!.displayName ?? ""));
+  }
+
+  bool isTextFieldChanged(TextEditingController controller) {
+    return controller.text.isNotEmpty;
   }
 }

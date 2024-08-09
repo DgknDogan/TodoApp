@@ -45,6 +45,11 @@ class RegisterCubit extends Cubit<RegisterState> {
       );
 
       await _auth.signInWithCredential(cred);
+      if (_auth.currentUser != null) {
+        _firestore.collection("User").doc(_auth.currentUser!.uid).update(
+          {"isActive": true},
+        );
+      }
 
       final querySnapshot = await _firestore.collection("User").get();
 

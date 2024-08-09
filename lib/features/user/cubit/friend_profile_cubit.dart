@@ -120,10 +120,16 @@ class FriendProfileCubit extends Cubit<FriendProfileState> {
     );
   }
 
-  void _isFriendWithUser() {
+  void _isFriendWithUser() async {
+    final firendRef = await _firestore
+        .collection("User")
+        .where("name", isEqualTo: friend.name)
+        .get();
+    final currentFriend = UserModel.fromJson(firendRef.docs.first.data());
     emit(
       state.copyWith(
-        isFriendWithUser: friend.friendsList?.contains(_auth.currentUser!.uid),
+        isFriendWithUser:
+            currentFriend.friendsList?.contains(_auth.currentUser!.uid),
       ),
     );
   }
@@ -141,6 +147,7 @@ class FriendProfileCubit extends Cubit<FriendProfileState> {
         .listen(
       (event) {
         _checkIsFriendshipRequestSent();
+        _isFriendWithUser();
       },
     );
   }

@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../routes/app_router.gr.dart';
-import '../../auth/cubit/profile_cubit.dart';
+import '../cubit/profile_cubit.dart';
 import '../cubit/home_cubit.dart';
 
 final GlobalKey<FormState> _nameFormKey = GlobalKey<FormState>();
@@ -20,9 +20,17 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final nameController = TextEditingController();
-  final surnameController = TextEditingController();
-  final phoneController = TextEditingController();
+  late TextEditingController nameController;
+  late TextEditingController surnameController;
+  late TextEditingController phoneController;
+
+  @override
+  void initState() {
+    nameController = TextEditingController();
+    surnameController = TextEditingController();
+    phoneController = TextEditingController();
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -138,21 +146,27 @@ class FriendsSection extends StatelessWidget {
             SizedBox(height: 20.h),
             BlocBuilder<ProfileCubit, ProfileState>(
               builder: (context, state) {
-                return Column(
-                  children: [
-                    ...state.friendReqList.map(
-                      (user) {
-                        return GestureDetector(
-                          onTap: () => context.router
-                              .push(FriendProfileRoute(friend: user)),
-                          child: FriendRequestCard(
-                            name: user.name ?? "",
-                          ),
-                        );
-                      },
-                    )
-                  ],
-                );
+                if (!state.isFriendshipListLoading) {
+                  return SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ...state.friendReqList.map(
+                          (user) {
+                            return GestureDetector(
+                              onTap: () => context.router
+                                  .push(FriendProfileRoute(friend: user)),
+                              child: FriendRequestCard(
+                                name: user.name ?? "",
+                              ),
+                            );
+                          },
+                        )
+                      ],
+                    ),
+                  );
+                } else {
+                  return const CircularProgressIndicator();
+                }
               },
             )
           ],

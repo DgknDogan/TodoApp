@@ -11,6 +11,10 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: LoginRoute.page),
         AutoRoute(page: ForgotPasswordRoute.page),
         CustomRoute(
+          page: SetNameRoute.page,
+          transitionsBuilder: TransitionsBuilders.fadeIn,
+        ),
+        CustomRoute(
           page: MessagesInitialRoute.page,
           transitionsBuilder: TransitionsBuilders.fadeIn,
         ),
