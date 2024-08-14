@@ -1,4 +1,4 @@
-part of 'todo_cubit.dart';
+part of '../cubit/todo_cubit.dart';
 
 final class TodoState {
   final List<TodoModel> todoList;

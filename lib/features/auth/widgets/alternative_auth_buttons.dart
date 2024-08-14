@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class FacebookButton extends StatelessWidget {
-  const FacebookButton({
-    super.key,
-  });
+  const FacebookButton({super.key});
 
   @override
   Widget build(BuildContext context) {

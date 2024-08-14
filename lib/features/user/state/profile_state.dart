@@ -1,4 +1,4 @@
-part of 'profile_cubit.dart';
+part of '../cubit/profile_cubit.dart';
 
 class ProfileState {
   final String name;

@@ -4,9 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../user/widgets/flushbars.dart';
-import '../../user/widgets/form_fields.dart';
-import '../../user/widgets/header_text.dart';
+import '../widgets/flushbars.dart';
+import '../widgets/form_fields.dart';
+import '../widgets/header_text.dart';
 import '../cubit/forget_password_cubit.dart';
 
 @RoutePage()

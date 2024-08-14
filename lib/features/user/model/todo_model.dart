@@ -1,16 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_demo/features/user/data/enums/todo_category_enum.dart';
-import '../data/enums/priority_enum.dart';
+import 'package:equatable/equatable.dart';
+import 'package:firebase_demo/features/user/model/enum/todo_category_enum.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'enum/priority_enum.dart';
 
-class TodoModel {
-  String? title;
-  TodoCategoryEnum? category;
-  PriorityEnum? priority;
-  bool? isFinished;
-  DateTime? startDate;
-  DateTime? endDate;
+part 'todo_model.g.dart';
 
-  TodoModel({
+@JsonSerializable()
+class TodoModel extends Equatable {
+  final String? title;
+  final TodoCategoryEnum? category;
+  final PriorityEnum? priority;
+  final bool? isFinished;
+  final DateTime? startDate;
+  final DateTime? endDate;
+
+  const TodoModel({
     this.title,
     this.category,
     this.isFinished,
@@ -37,47 +42,18 @@ class TodoModel {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'title': title,
-      'category': category?.text,
-      'priority': priority?.value,
-      'isFinished': isFinished,
-      'startDate': startDate,
-      'endDate': endDate,
-    };
-  }
+  factory TodoModel.fromJson(Map<String, dynamic> json) =>
+      _$TodoModelFromJson(json);
 
-  factory TodoModel.fromJson(Map<String, dynamic> json) {
-    return TodoModel(
-      title: json['title'] as String?,
-      category: TodoCategoryEnum.getCategoryByText(json['category'])
-          as TodoCategoryEnum?,
-      isFinished: json['isFinished'] as bool?,
-      startDate: (json['startDate'] as Timestamp).toDate(),
-      endDate: (json['endDate'] as Timestamp).toDate(),
-      priority:
-          PriorityEnum.getPriorityByValue(json['priority']) as PriorityEnum?,
-    );
-  }
+  Map<String, dynamic> toJson() => _$TodoModelToJson(this);
 
   @override
-  String toString() =>
-      "TodoModel(title: $title,category: $category,isFinished: $isFinished,startDate: $startDate,endDate: $endDate)";
-
-  @override
-  int get hashCode =>
-      Object.hash(title, category, isFinished, startDate, endDate);
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TodoModel &&
-          runtimeType == other.runtimeType &&
-          title == other.title &&
-          category == other.category &&
-          isFinished == other.isFinished &&
-          startDate == other.startDate &&
-          endDate == other.endDate &&
-          priority == other.priority;
+  List<Object?> get props => [
+        title,
+        category,
+        isFinished,
+        startDate,
+        endDate,
+        priority,
+      ];
 }

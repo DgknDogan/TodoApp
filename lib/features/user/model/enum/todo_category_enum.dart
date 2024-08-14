@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+@JsonEnum()
 enum TodoCategoryEnum {
+  @JsonValue("Work")
   work(
     color: Color(0xffFFCC80),
     text: "Work",
@@ -9,6 +12,7 @@ enum TodoCategoryEnum {
       color: Color(0xffA36200),
     ),
   ),
+  @JsonValue("Home")
   home(
       color: Color(0xffFF8080),
       text: "Home",
@@ -16,6 +20,7 @@ enum TodoCategoryEnum {
         Icons.home,
         color: Color(0xffA30000),
       )),
+  @JsonValue("University")
   university(
       color: Color(0xff809CFF),
       text: "University",

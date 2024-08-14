@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_demo/features/user/widgets/flushbars.dart';
+import 'package:firebase_demo/features/auth/widgets/flushbars.dart';
+import 'package:firebase_demo/utils/custom/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../routes/app_router.gr.dart';
 import '../cubit/friend_profile_cubit.dart';
-import '../model/user_model.dart';
+import '../../auth/models/user_model.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -29,6 +30,7 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
       child: BlocBuilder<FriendProfileCubit, FriendProfileState>(
         builder: (context, state) {
           return Scaffold(
+            backgroundColor: Colors.white,
             floatingActionButton: state.isFriendWithUser!
                 ? FloatingActionButton(
                     backgroundColor: Colors.blue,
@@ -41,80 +43,77 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
                     },
                   )
                 : const SizedBox(),
-            appBar: AppBar(
+            appBar: CustomAppbar(
               systemOverlayStyle: const SystemUiOverlayStyle(
                   systemNavigationBarColor: Colors.white),
-              leading: IconButton(
-                  onPressed: () {
-                    context.read<FriendProfileCubit>().cancelListener();
-                    context.router.maybePop();
-                  },
-                  icon: const Icon(Icons.arrow_back)),
+              title: "${widget.friend.name}'s profile",
+              centerTitle: false,
+              leadingOnPressed: () {
+                context.read<FriendProfileCubit>().cancelListener();
+                context.router.maybePop();
+              },
+              leadingIcon: const Icon(Icons.arrow_back),
               actions: [
                 SizedBox(width: 10.w),
-                state.isFriendWithUser!
-                    ? Container(
-                        padding: EdgeInsets.only(right: 20.w),
-                        child: GestureDetector(
-                          onTap: () {
-                            context.read<FriendProfileCubit>().removeFriend();
-                          },
-                          child: const Row(
-                            children: [
-                              Text("Remove friend"),
-                            ],
+                if (state.isFriendWithUser!)
+                  Container(
+                    padding: EdgeInsets.only(right: 20.w),
+                    child: GestureDetector(
+                      onTap: () {
+                        context.read<FriendProfileCubit>().removeFriend();
+                      },
+                      child: Row(
+                        children: [
+                          Text(
+                            "Remove friend",
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
-                        ),
-                      )
-                    : Container(
-                        padding: EdgeInsets.only(right: 20.w),
-                        child: GestureDetector(
-                          onTap: () async {
-                            if (state.isRequestSent) {
-                              context
-                                  .read<FriendProfileCubit>()
-                                  .cancelFriendshipRequest();
-                            } else {
-                              if (_auth.currentUser!.displayName == null) {
-                                errorFlushbar("Set you name!!!").show(context);
-                              }
-                              context
-                                  .read<FriendProfileCubit>()
-                                  .sendFriendshipRequest();
-                            }
-                          },
-                          child: Row(
-                            children: [
-                              !state.isRequestSent
-                                  ? const Icon(Icons.add)
-                                  : const Icon(Icons.cancel_sharp),
-                              !state.isRequestSent
-                                  ? const Text("Add friend")
-                                  : const Text("Cancel"),
-                            ],
-                          ),
-                        ),
-                      )
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  Container(
+                    padding: EdgeInsets.only(right: 20.w),
+                    child: GestureDetector(
+                      onTap: () async {
+                        if (state.isRequestSent) {
+                          context
+                              .read<FriendProfileCubit>()
+                              .cancelFriendshipRequest();
+                        } else {
+                          if (_auth.currentUser!.displayName == null) {
+                            errorFlushbar("Set you name!!!").show(context);
+                          }
+                          context
+                              .read<FriendProfileCubit>()
+                              .sendFriendshipRequest();
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          if (!state.isRequestSent)
+                            const Icon(Icons.add)
+                          else
+                            const Icon(Icons.cancel_sharp),
+                          if (!state.isRequestSent)
+                            Text(
+                              "Add friend",
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            )
+                          else
+                            Text(
+                              "Cancel",
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                        ],
+                      ),
+                    ),
+                  )
               ],
-              toolbarHeight: 80.h,
-              title: Text("${widget.friend.name}'s profile"),
-              flexibleSpace: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: <Color>[
-                      Color(0xff3461FD),
-                      Color(0xAA3461FD),
-                      Color(0x003461FD),
-                    ],
-                  ),
-                ),
-              ),
             ),
-            backgroundColor: Colors.white,
             body: SafeArea(
-              child: FriendDetails(friend: widget.friend),
+              child: _FriendDetails(friend: widget.friend),
             ),
           );
         },
@@ -123,11 +122,8 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
   }
 }
 
-class FriendDetails extends StatelessWidget {
-  const FriendDetails({
-    super.key,
-    required this.friend,
-  });
+class _FriendDetails extends StatelessWidget {
+  const _FriendDetails({required this.friend});
 
   final UserModel friend;
 
@@ -141,11 +137,11 @@ class FriendDetails extends StatelessWidget {
           SizedBox(height: 20.h),
           Text(
             "name: ${friend.name!}",
-            style: TextStyle(fontSize: 16.sp),
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           Text(
             "suranme${friend.surname ?? ""}",
-            style: TextStyle(fontSize: 16.sp),
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
       ),

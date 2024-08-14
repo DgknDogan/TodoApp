@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:firebase_demo/utils/custom/custom_appbar.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,24 +20,16 @@ class MessagesInitialPage extends StatelessWidget {
       child: BlocBuilder<MessagesInitialCubit, MessagesInitialState>(
         builder: (context, state) {
           return Scaffold(
-            appBar: AppBar(
+            appBar: CustomAppbar(
               systemOverlayStyle: const SystemUiOverlayStyle(
-                  systemNavigationBarColor: Colors.white),
-              toolbarHeight: 80.h,
-              title: const Text("Message"),
-              flexibleSpace: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: <Color>[
-                      Color(0xff3461FD),
-                      Color(0xAA3461FD),
-                      Color(0x003461FD),
-                    ],
-                  ),
-                ),
+                systemNavigationBarColor: Colors.white,
               ),
+              title: "Message",
+              centerTitle: false,
+              leadingOnPressed: () {
+                context.router.maybePop();
+              },
+              leadingIcon: const Icon(Icons.arrow_back),
             ),
             body: SafeArea(
               child: ListView.builder(
@@ -52,9 +45,7 @@ class MessagesInitialPage extends StatelessWidget {
                         .push(MessageRoute(friend: state.friendsList[index])),
                     title: Text(
                       state.friendsList[index].name!,
-                      style: TextStyle(
-                        fontSize: 30.sp,
-                      ),
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   );
                 },

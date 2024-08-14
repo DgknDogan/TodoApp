@@ -1,6 +1,12 @@
+import 'package:json_annotation/json_annotation.dart';
+
+@JsonEnum()
 enum PriorityEnum {
+  @JsonValue(1)
   low(value: 1, text: "trivial"),
+  @JsonValue(2)
   mid(value: 2, text: "important"),
+  @JsonValue(3)
   high(value: 3, text: "urgent");
 
   final int value;

@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-part 'splash_state.dart';
+part '../state/splash_state.dart';
 
 class SplashCubit extends Cubit<SplashState> {
   SplashCubit()

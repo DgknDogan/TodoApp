@@ -1,4 +1,4 @@
-part of 'social_cubit.dart';
+part of '../cubit/social_cubit.dart';
 
 class SocialState {
   final List<UserModel> suggestedList;

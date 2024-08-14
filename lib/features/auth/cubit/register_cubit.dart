@@ -3,11 +3,11 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_demo/features/user/model/user_model.dart';
+import 'package:firebase_demo/features/auth/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-part 'register_state.dart';
+part '../state/register_state.dart';
 
 class RegisterCubit extends Cubit<RegisterState> {
   RegisterCubit()

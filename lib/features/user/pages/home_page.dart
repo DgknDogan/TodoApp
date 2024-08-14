@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_demo/utils/custom/custom_appbar.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +12,9 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import '../../../routes/app_router.gr.dart';
 import '../cubit/home_cubit.dart';
 import '../model/chart_model.dart';
-import '../model/user_model.dart';
+import '../../auth/models/user_model.dart';
+
+final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
 @RoutePage()
 class HomePage extends StatefulWidget {
@@ -40,13 +43,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final FirebaseAuth auth = FirebaseAuth.instance;
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
-    final users = firestore.collection("User").doc(auth.currentUser!.uid);
+    if (auth.currentUser == null) return;
+    final currentUserDoc =
+        firestore.collection("User").doc(auth.currentUser!.uid);
     if (state == AppLifecycleState.resumed) {
-      users.update({
+      currentUserDoc.update({
         "isActive": true,
       });
     } else {
-      users.update({
+      currentUserDoc.update({
         "isActive": false,
       });
     }
@@ -57,29 +62,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         return Scaffold(
+          key: _scaffoldKey,
           drawer: const MainDrawer(),
           backgroundColor: Colors.white,
-          appBar: AppBar(
-            foregroundColor: Colors.white,
-            title: Text(
-              "Welcome ${state.userName ?? ""}",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            toolbarHeight: 80.h,
+          appBar: CustomAppbar(
             centerTitle: true,
-            backgroundColor: const Color(0xAA3461FD),
-            leading: Builder(
-              builder: (context) {
-                return IconButton(
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
-                  icon: const Icon(Icons.menu),
-                );
-              },
-            ),
+            title: "Welcome ${state.userName ?? ""}",
+            leadingOnPressed: () {
+              _scaffoldKey.currentState!.openDrawer();
+            },
+            leadingIcon: const Icon(Icons.menu),
           ),
           body: RefreshIndicator(
             onRefresh: () async {
@@ -100,13 +92,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   child: Column(
                     children: [
                       SizedBox(height: 24.h),
-                      const TodoLeaderboard(),
+                      const _TodoLeaderboard(),
                       SizedBox(height: 24.h),
-                      const CompleteProfileCard(),
+                      const _CompleteProfileCard(),
                       SizedBox(height: 24.h),
-                      const UpcomingTodosCard(),
+                      const _UpcomingTodosCard(),
                       SizedBox(height: 24.h),
-                      const NewFriendNotificationCard(),
+                      const _NewFriendNotificationCard(),
                     ],
                   ),
                 ),
@@ -119,9 +111,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 }
 
-// TodoLeaderboard section
-class TodoLeaderboard extends StatelessWidget {
-  const TodoLeaderboard({super.key});
+// _TodoLeaderboard section
+class _TodoLeaderboard extends StatelessWidget {
+  const _TodoLeaderboard();
 
   @override
   Widget build(BuildContext context) {
@@ -147,21 +139,21 @@ class TodoLeaderboard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   // Second place
-                  TopUser(
+                  _TopUser(
                     containerHeight: 40,
                     user: state.secondUser,
                     userPlace: 2,
                     color: Colors.grey,
                   ),
                   // First place
-                  TopUser(
+                  _TopUser(
                     containerHeight: 50,
                     user: state.firstUser,
                     userPlace: 1,
                     color: Colors.amber,
                   ),
                   // Thi
-                  TopUser(
+                  _TopUser(
                     containerHeight: 30,
                     user: state.thirdUser,
                     userPlace: 3,
@@ -180,7 +172,7 @@ class TodoLeaderboard extends StatelessWidget {
                     SvgPicture.asset("assets/Svg/crown.svg"),
                     Text(
                       "Leaderboard",
-                      style: TextStyle(fontSize: 18.sp),
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     SvgPicture.asset("assets/Svg/crown.svg"),
                   ],
@@ -194,14 +186,13 @@ class TodoLeaderboard extends StatelessWidget {
   }
 }
 
-class TopUser extends StatelessWidget {
+class _TopUser extends StatelessWidget {
   final UserModel? user;
   final int userPlace;
   final int containerHeight;
   final Color color;
 
-  const TopUser({
-    super.key,
+  const _TopUser({
     required this.user,
     required this.userPlace,
     required this.containerHeight,
@@ -213,8 +204,16 @@ class TopUser extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Text(user?.name ?? ""),
-        user != null ? Text("points: ${user?.points}") : const SizedBox(),
+        Text(
+          user?.name ?? "",
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        user != null
+            ? Text(
+                "points: ${user?.points}",
+                style: Theme.of(context).textTheme.bodySmall,
+              )
+            : const SizedBox(),
         Container(
           width: 75.w,
           height: containerHeight.h,
@@ -222,11 +221,10 @@ class TopUser extends StatelessWidget {
           child: Center(
             child: Text(
               userPlace.toString(),
-              style: TextStyle(
-                color: color,
-                fontSize: 20.sp,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: color),
             ),
           ),
         )
@@ -234,17 +232,17 @@ class TopUser extends StatelessWidget {
     );
   }
 }
-// TodoLeaderboard section
+// _TodoLeaderboard section
 
-// CompleteProfileCard section
-class CompleteProfileCard extends StatefulWidget {
-  const CompleteProfileCard({super.key});
+// _CompleteProfileCard section
+class _CompleteProfileCard extends StatefulWidget {
+  const _CompleteProfileCard();
 
   @override
-  State<CompleteProfileCard> createState() => _CompleteProfileCardState();
+  State<_CompleteProfileCard> createState() => _CompleteProfileCardState();
 }
 
-class _CompleteProfileCardState extends State<CompleteProfileCard> {
+class _CompleteProfileCardState extends State<_CompleteProfileCard> {
   @override
   void initState() {
     context.read<HomeCubit>().initializeChartData();
@@ -280,10 +278,10 @@ class _CompleteProfileCardState extends State<CompleteProfileCard> {
                                 padding: EdgeInsets.only(left: 16.w),
                                 child: Text(
                                   "Finish your profile \nfor leaderboard",
-                                  style: TextStyle(fontSize: 20.sp),
+                                  style: Theme.of(context).textTheme.bodyLarge,
                                 ),
                               ),
-                              const ChartStack()
+                              const _ChartStack()
                             ],
                           ),
                         ],
@@ -308,8 +306,8 @@ class _CompleteProfileCardState extends State<CompleteProfileCard> {
   }
 }
 
-class ChartStack extends StatelessWidget {
-  const ChartStack({super.key});
+class _ChartStack extends StatelessWidget {
+  const _ChartStack();
 
   @override
   Widget build(BuildContext context) {
@@ -335,7 +333,7 @@ class ChartStack extends StatelessWidget {
             ),
             Text(
               "${state.count}/3",
-              style: TextStyle(fontSize: 16.sp),
+              style: Theme.of(context).textTheme.bodyMedium,
             )
           ],
         );
@@ -343,11 +341,11 @@ class ChartStack extends StatelessWidget {
     );
   }
 }
-// CompleteProfileCard section
+// _CompleteProfileCard section
 
-// UpcomingTodosCard section
-class UpcomingTodosCard extends StatelessWidget {
-  const UpcomingTodosCard({super.key});
+// _UpcomingTodosCard section
+class _UpcomingTodosCard extends StatelessWidget {
+  const _UpcomingTodosCard();
 
   @override
   Widget build(BuildContext context) {
@@ -380,12 +378,17 @@ class UpcomingTodosCard extends StatelessWidget {
                         children: [
                           Text(
                             "${state.upcomingTodos.length} upcoming todos",
-                            style:
-                                TextStyle(fontSize: 20.sp, color: Colors.red),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(color: Colors.red),
                           ),
-                          const Text(
+                          Text(
                             "Tap to see",
-                            style: TextStyle(color: Colors.red),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: Colors.red),
                           )
                         ],
                       ),
@@ -423,11 +426,11 @@ class UpcomingTodosCard extends StatelessWidget {
     );
   }
 }
-// UpcomingTodosCard section
+// _UpcomingTodosCard section
 
-// NewFriendNotificationCard section
-class NewFriendNotificationCard extends StatelessWidget {
-  const NewFriendNotificationCard({super.key});
+// _NewFriendNotificationCard section
+class _NewFriendNotificationCard extends StatelessWidget {
+  const _NewFriendNotificationCard();
 
   @override
   Widget build(BuildContext context) {
@@ -458,14 +461,17 @@ class NewFriendNotificationCard extends StatelessWidget {
                       width: double.infinity,
                       child: Column(
                         children: [
+                          Text("${state.newFriendRequestCount} friend requests",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(color: Colors.blue)),
                           Text(
-                            "${state.newFriendRequestCount} friend requests",
-                            style:
-                                TextStyle(fontSize: 20.sp, color: Colors.blue),
-                          ),
-                          const Text(
                             "Tap to see",
-                            style: TextStyle(color: Colors.blue),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: Colors.blue),
                           )
                         ],
                       ),
@@ -503,7 +509,7 @@ class NewFriendNotificationCard extends StatelessWidget {
     );
   }
 }
-// NewFriendNotificationCard section
+// _NewFriendNotificationCard section
 
 // Main Drawer
 class MainDrawer extends StatelessWidget {
@@ -528,7 +534,7 @@ class MainDrawer extends StatelessWidget {
               ),
               title: Text(
                 "Todos",
-                style: TextStyle(fontSize: 20.sp),
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
               onTap: () {
                 context.router.maybePop();
@@ -542,7 +548,7 @@ class MainDrawer extends StatelessWidget {
               ),
               title: Text(
                 "Profile",
-                style: TextStyle(fontSize: 20.sp),
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
               onTap: () {
                 context.router.maybePop();
@@ -556,7 +562,7 @@ class MainDrawer extends StatelessWidget {
               ),
               title: Text(
                 "Social",
-                style: TextStyle(fontSize: 20.sp),
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
               onTap: () {
                 context.router.maybePop();
@@ -570,7 +576,7 @@ class MainDrawer extends StatelessWidget {
               ),
               title: Text(
                 "Messages",
-                style: TextStyle(fontSize: 20.sp),
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
               onTap: () {
                 context.router.maybePop();
@@ -578,7 +584,7 @@ class MainDrawer extends StatelessWidget {
               },
             ),
             const Spacer(),
-            const LogOutButton()
+            const _LogOutButton()
           ],
         ),
       ),
@@ -586,8 +592,8 @@ class MainDrawer extends StatelessWidget {
   }
 }
 
-class LogOutButton extends StatelessWidget {
-  const LogOutButton({super.key});
+class _LogOutButton extends StatelessWidget {
+  const _LogOutButton();
 
   @override
   Widget build(BuildContext context) {
@@ -614,81 +620,69 @@ class LogOutButton extends StatelessWidget {
           showDialog(
             context: context,
             builder: (context) {
-              return const AlertDialog(
-                title: Text("You are logging out"),
-                content: Text("Are you sure?"),
+              return AlertDialog(
+                title: Text(
+                  "You are logging out",
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                content: Text("Are you sure?",
+                    style: Theme.of(context).textTheme.bodySmall),
                 actionsAlignment: MainAxisAlignment.spaceEvenly,
-                actions: [LogOutDialogButtons()],
+                actions: const [_LogOutDialogButtons()],
               );
             },
           );
         },
-        child: Text(
+        child: const Text(
           "Log out",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.sp,
-          ),
         ),
       ),
     );
   }
 }
 
-class LogOutDialogButtons extends StatelessWidget {
-  const LogOutDialogButtons({super.key});
+class _LogOutDialogButtons extends StatelessWidget {
+  const _LogOutDialogButtons();
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        ElevatedButton(
-          onPressed: () async {
-            context.router.maybePop();
-          },
-          style: ButtonStyle(
-            elevation: const WidgetStatePropertyAll(5),
-            shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(14.r),
-                ),
-              ),
-            ),
-            shadowColor: const WidgetStatePropertyAll(Color(0xff3461FD)),
-            backgroundColor: const WidgetStatePropertyAll(Color(0xff3461FD)),
-          ),
-          child: const Text(
-            "No",
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-        ElevatedButton(
+        _LogOutDialogButton(
+            onPressed: () {
+              context.router.maybePop();
+            },
+            text: "No"),
+        _LogOutDialogButton(
           onPressed: () {
             context.read<HomeCubit>().logOut();
             context.read<HomeCubit>().cancelListener();
             context.router.maybePop();
             context.router.replace(const LoginRoute());
           },
-          style: ButtonStyle(
-            elevation: const WidgetStatePropertyAll(5),
-            shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(14.r),
-                ),
-              ),
-            ),
-            shadowColor: const WidgetStatePropertyAll(Color(0xff3461FD)),
-            backgroundColor: const WidgetStatePropertyAll(Color(0xff3461FD)),
-          ),
-          child: const Text(
-            "Yes",
-            style: TextStyle(color: Colors.white),
-          ),
+          text: "Yes",
         ),
       ],
+    );
+  }
+}
+
+class _LogOutDialogButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  final String text;
+
+  const _LogOutDialogButton({required this.onPressed, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 40.h,
+      width: 60.w,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Text(text),
+      ),
     );
   }
 }

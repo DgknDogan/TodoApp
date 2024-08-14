@@ -1,4 +1,4 @@
-part of 'messages_initial_cubit.dart';
+part of '../cubit/messages_initial_cubit.dart';
 
 class MessagesInitialState {
   final List<UserModel> friendsList;

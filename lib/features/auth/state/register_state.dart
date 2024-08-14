@@ -1,4 +1,4 @@
-part of 'register_cubit.dart';
+part of '../cubit/register_cubit.dart';
 
 @immutable
 sealed class RegisterState {}

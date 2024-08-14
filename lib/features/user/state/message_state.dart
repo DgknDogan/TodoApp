@@ -1,4 +1,4 @@
-part of 'message_cubit.dart';
+part of '../cubit/message_cubit.dart';
 
 class MessageState {
   final List<MessageModel> messagesList;

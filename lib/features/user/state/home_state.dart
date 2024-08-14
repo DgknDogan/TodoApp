@@ -1,4 +1,4 @@
-part of 'home_cubit.dart';
+part of '../cubit/home_cubit.dart';
 
 final class HomeState {
   final List<ChartData> data;

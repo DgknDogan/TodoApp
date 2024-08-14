@@ -1,4 +1,4 @@
-part of 'splash_cubit.dart';
+part of '../cubit/splash_cubit.dart';
 
 class SplashState {
   final bool isRemembered;

@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 
 import 'home_cubit.dart';
 import '../data/profile_local_data.dart';
-import '../model/user_model.dart';
+import '../../auth/models/user_model.dart';
 
-part 'profile_state.dart';
+part '../state/profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   final HomeCubit homeCubit;

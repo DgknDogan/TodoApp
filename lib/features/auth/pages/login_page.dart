@@ -1,17 +1,17 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_demo/utils/custom/custom_elevated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../routes/app_router.gr.dart';
-import '../../user/widgets/alternative_auth_buttons.dart';
-import '../../user/widgets/divider.dart';
-import '../../user/widgets/flushbars.dart';
-import '../../user/widgets/form_fields.dart';
-import '../../user/widgets/header_text.dart';
-import '../../user/widgets/main_button.dart';
+import '../widgets/alternative_auth_buttons.dart';
+import '../widgets/divider.dart';
+import '../widgets/flushbars.dart';
+import '../widgets/form_fields.dart';
+import '../widgets/header_text.dart';
 import '../cubit/login_cubit.dart';
 
 @RoutePage()
@@ -71,7 +71,7 @@ class LoginPage extends HookWidget {
                       mailController: mailController,
                       passwordController: passwordController,
                     ),
-                    SizedBox(height: 32.h),
+                    SizedBox(height: 37.h),
                     LoginSection(
                       mailController: mailController,
                       passwordController: passwordController,
@@ -226,12 +226,16 @@ class LoginSection extends StatelessWidget {
       builder: (context, state) {
         return Column(
           children: [
-            MainButton(
-              mailController: mailController,
-              passwordController: passwordController,
-              text: "Log In",
-              function: context.read<LoginCubit>().login,
-            ),
+            CustomElevatedButton(
+                height: 60,
+                onPressed: () {
+                  context.read<LoginCubit>().login(
+                        email: mailController.text,
+                        password: passwordController.text,
+                      );
+                },
+                text: "Log In"),
+            SizedBox(height: 20.h),
             SignUpTextRow(
               mailController: mailController,
               passwordController: passwordController,

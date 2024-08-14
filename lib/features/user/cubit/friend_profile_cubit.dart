@@ -4,9 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_demo/features/user/data/profile_local_data.dart';
 
-import '../model/user_model.dart';
+import '../../auth/models/user_model.dart';
 
-part 'friend_profile_state.dart';
+part '../state/friend_profile_state.dart';
 
 class FriendProfileCubit extends Cubit<FriendProfileState> {
   final UserModel friend;

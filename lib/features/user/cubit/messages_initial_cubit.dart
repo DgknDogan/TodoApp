@@ -2,9 +2,9 @@ import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_demo/features/user/data/profile_local_data.dart';
-import '../model/user_model.dart';
+import '../../auth/models/user_model.dart';
 
-part 'messages_initial_state.dart';
+part '../state/messages_initial_state.dart';
 
 class MessagesInitialCubit extends Cubit<MessagesInitialState> {
   MessagesInitialCubit() : super(MessagesInitialState(friendsList: [])) {

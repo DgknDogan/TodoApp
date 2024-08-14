@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:firebase_demo/utils/custom/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -48,29 +49,14 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context, state) {
           return Scaffold(
             backgroundColor: Colors.white,
-            appBar: AppBar(
-              leading: IconButton(
-                onPressed: () {
-                  context.read<ProfileCubit>().cancelListener();
-                  context.router.maybePop();
-                },
-                icon: const Icon(Icons.arrow_back),
-              ),
-              toolbarHeight: 80.h,
-              title: const Text("Profile"),
-              flexibleSpace: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: <Color>[
-                      Color(0xff3461FD),
-                      Color(0xAA3461FD),
-                      Color(0x003461FD),
-                    ],
-                  ),
-                ),
-              ),
+            appBar: CustomAppbar(
+              title: "Profile",
+              centerTitle: false,
+              leadingOnPressed: () {
+                context.read<ProfileCubit>().cancelListener();
+                context.router.maybePop();
+              },
+              leadingIcon: const Icon(Icons.arrow_back),
             ),
             body: SafeArea(
               child: Container(
@@ -80,7 +66,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     SizedBox(height: 20.h),
                     Form(
                         key: _nameFormKey,
-                        child: ProfileTextField(
+                        child: _ProfileTextField(
                           controller: nameController,
                           text: "Name",
                           onPressed: context.read<ProfileCubit>().saveName,
@@ -90,7 +76,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     SizedBox(height: 20.h),
                     Form(
                       key: _surnameFormKey,
-                      child: ProfileTextField(
+                      child: _ProfileTextField(
                         controller: surnameController,
                         text: "Surname",
                         onPressed: context.read<ProfileCubit>().saveSurname,
@@ -101,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     SizedBox(height: 20.h),
                     Form(
                       key: _phoneFormKey,
-                      child: ProfileTextField(
+                      child: _ProfileTextField(
                         controller: phoneController,
                         text: "Phone",
                         onPressed: context.read<ProfileCubit>().savePhoneNumber,
@@ -112,7 +98,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     SizedBox(height: 20.h),
                     const Divider(),
                     SizedBox(height: 20.h),
-                    const FriendsSection(),
+                    const _FriendsSection(),
                   ],
                 ),
               ),
@@ -124,8 +110,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-class FriendsSection extends StatelessWidget {
-  const FriendsSection({super.key});
+class _FriendsSection extends StatelessWidget {
+  const _FriendsSection();
 
   @override
   Widget build(BuildContext context) {
@@ -137,10 +123,7 @@ class FriendsSection extends StatelessWidget {
             state.newFriendRequestCount != 0
                 ? Text(
                     "${state.newFriendRequestCount} friend requests",
-                    style: TextStyle(
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.bodyLarge,
                   )
                 : const SizedBox(),
             SizedBox(height: 20.h),
@@ -155,7 +138,7 @@ class FriendsSection extends StatelessWidget {
                             return GestureDetector(
                               onTap: () => context.router
                                   .push(FriendProfileRoute(friend: user)),
-                              child: FriendRequestCard(
+                              child: _FriendRequestCard(
                                 name: user.name ?? "",
                               ),
                             );
@@ -176,10 +159,10 @@ class FriendsSection extends StatelessWidget {
   }
 }
 
-class FriendRequestCard extends StatelessWidget {
+class _FriendRequestCard extends StatelessWidget {
   final String name;
 
-  const FriendRequestCard({super.key, required this.name});
+  const _FriendRequestCard({required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -197,20 +180,20 @@ class FriendRequestCard extends StatelessWidget {
               SizedBox(width: 20.w),
               Text(
                 name,
-                style: TextStyle(fontSize: 20.sp),
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
           ),
           Row(
             children: [
-              CustomIconButton(
+              _CustomIconButton(
                 funciton: context.read<ProfileCubit>().acceptFriendship,
                 icon: const Icon(Icons.done),
                 color: Colors.green,
                 name: name,
               ),
               SizedBox(width: 10.w),
-              CustomIconButton(
+              _CustomIconButton(
                 funciton: context.read<ProfileCubit>().denyFriendship,
                 icon: const Icon(Icons.cancel),
                 color: Colors.red,
@@ -224,14 +207,13 @@ class FriendRequestCard extends StatelessWidget {
   }
 }
 
-class CustomIconButton extends StatelessWidget {
+class _CustomIconButton extends StatelessWidget {
   final Icon icon;
   final Function(String) funciton;
   final Color color;
   final String name;
 
-  const CustomIconButton({
-    super.key,
+  const _CustomIconButton({
     required this.icon,
     required this.funciton,
     required this.color,
@@ -255,15 +237,14 @@ class CustomIconButton extends StatelessWidget {
   }
 }
 
-class ProfileTextField extends StatefulWidget {
+class _ProfileTextField extends StatefulWidget {
   final TextEditingController controller;
   final String text;
   final Function(String) onPressed;
   final String hintText;
   final GlobalKey<FormState> formKey;
 
-  const ProfileTextField({
-    super.key,
+  const _ProfileTextField({
     required this.controller,
     required this.text,
     required this.onPressed,
@@ -272,10 +253,10 @@ class ProfileTextField extends StatefulWidget {
   });
 
   @override
-  State<ProfileTextField> createState() => _ProfileTextFieldState();
+  State<_ProfileTextField> createState() => _ProfileTextFieldState();
 }
 
-class _ProfileTextFieldState extends State<ProfileTextField> {
+class _ProfileTextFieldState extends State<_ProfileTextField> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ProfileCubit, ProfileState>(
@@ -285,10 +266,9 @@ class _ProfileTextFieldState extends State<ProfileTextField> {
           children: [
             Text(
               widget.text,
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: Colors.grey.shade600,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey.shade600,
+                  ),
             ),
             TextFormField(
               controller: widget.controller,

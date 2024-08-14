@@ -6,9 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_demo/features/user/model/message_model.dart';
 import 'package:flutter/material.dart';
 
-import '../model/user_model.dart';
+import '../../auth/models/user_model.dart';
 
-part 'message_state.dart';
+part '../state/message_state.dart';
 
 class MessageCubit extends Cubit<MessageState> {
   final ScrollController controller;

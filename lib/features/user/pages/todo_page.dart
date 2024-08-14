@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:firebase_demo/utils/custom/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,8 +9,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../routes/app_router.gr.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/todo_cubit.dart';
-import '../data/enums/priority_enum.dart';
-import '../data/enums/todo_category_enum.dart';
+import '../model/enum/priority_enum.dart';
+import '../model/enum/todo_category_enum.dart';
 import '../model/todo_model.dart';
 
 final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -38,7 +39,7 @@ class _TodoPageState extends State<TodoPage> {
                 builder: (context) {
                   return BlocProvider.value(
                     value: cubit,
-                    child: const TodoDialog(),
+                    child: const _TodoDialog(),
                   );
                 },
               );
@@ -51,27 +52,14 @@ class _TodoPageState extends State<TodoPage> {
               size: 35.r,
             ),
           ),
-          appBar: AppBar(
-            leading: GestureDetector(
-              onTap: () => context.router.maybePop(),
-              child: const Icon(Icons.arrow_back),
-            ),
-            toolbarHeight: 80.h,
-            title: Text(DateFormat.MMMEd().format(DateTime.now())),
-            actions: const [SortDropDown()],
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: <Color>[
-                    Color(0xff3461FD),
-                    Color(0xAA3461FD),
-                    Color(0x003461FD),
-                  ],
-                ),
-              ),
-            ),
+          appBar: CustomAppbar(
+            title: DateFormat.MMMEd().format(DateTime.now()),
+            centerTitle: false,
+            leadingOnPressed: () {
+              context.router.maybePop();
+            },
+            leadingIcon: const Icon(Icons.arrow_back),
+            actions: const [_SortDropDown()],
           ),
           body: SingleChildScrollView(
             child: SafeArea(
@@ -79,8 +67,8 @@ class _TodoPageState extends State<TodoPage> {
                 margin: EdgeInsets.symmetric(horizontal: 24.w),
                 child: const Column(
                   children: [
-                    ActiveTodos(),
-                    FinishedTodos(),
+                    _ActiveTodos(),
+                    _FinishedTodos(),
                   ],
                 ),
               ),
@@ -92,8 +80,8 @@ class _TodoPageState extends State<TodoPage> {
   }
 }
 
-class FinishedTodos extends StatelessWidget {
-  const FinishedTodos({super.key});
+class _FinishedTodos extends StatelessWidget {
+  const _FinishedTodos();
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +104,7 @@ class FinishedTodos extends StatelessWidget {
                       return Column(
                         children: [
                           SizedBox(height: 20.h),
-                          TodoCard(todo: finishedTodo),
+                          _TodoCard(todo: finishedTodo),
                         ],
                       );
                     },
@@ -129,8 +117,8 @@ class FinishedTodos extends StatelessWidget {
   }
 }
 
-class ActiveTodos extends StatelessWidget {
-  const ActiveTodos({super.key});
+class _ActiveTodos extends StatelessWidget {
+  const _ActiveTodos();
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +141,7 @@ class ActiveTodos extends StatelessWidget {
                       return Column(
                         children: [
                           SizedBox(height: 20.h),
-                          TodoCard(todo: todo),
+                          _TodoCard(todo: todo),
                         ],
                       );
                     },
@@ -166,10 +154,8 @@ class ActiveTodos extends StatelessWidget {
   }
 }
 
-class SortDropDown extends StatelessWidget {
-  const SortDropDown({
-    super.key,
-  });
+class _SortDropDown extends StatelessWidget {
+  const _SortDropDown();
 
   @override
   Widget build(BuildContext context) {
@@ -197,8 +183,8 @@ class SortDropDown extends StatelessWidget {
   }
 }
 
-class TodoDialog extends StatelessWidget {
-  const TodoDialog({super.key});
+class _TodoDialog extends StatelessWidget {
+  const _TodoDialog();
 
   @override
   Widget build(BuildContext context) {
@@ -233,19 +219,19 @@ class TodoDialog extends StatelessWidget {
                         ? Text(DateFormat.MMMEd().format(state.day!))
                         : const SizedBox(),
                     state.priority != null
-                        ? PriorityCard(priority: state.priority!)
+                        ? _PriorityCard(priority: state.priority!)
                         : const SizedBox(width: 0)
                   ],
                 ),
                 SizedBox(height: 20.h),
-                const TodoTitleForm(),
+                const _TodoTitleForm(),
                 SizedBox(height: 20.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        TimePicker(cubit: cubit),
+                        _TimePicker(cubit: cubit),
                         SizedBox(width: 16.w),
                         GestureDetector(
                           onTap: () {
@@ -254,7 +240,7 @@ class TodoDialog extends StatelessWidget {
                               builder: (context) {
                                 return BlocProvider.value(
                                   value: cubit,
-                                  child: CategoryPicker(cubit: cubit),
+                                  child: _CategoryPicker(cubit: cubit),
                                 );
                               },
                             );
@@ -272,7 +258,7 @@ class TodoDialog extends StatelessWidget {
                               builder: (context) {
                                 return BlocProvider.value(
                                   value: cubit,
-                                  child: PriorityPicker(cubit: cubit),
+                                  child: _PriorityPicker(cubit: cubit),
                                 );
                               },
                             );
@@ -284,7 +270,7 @@ class TodoDialog extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const NextButton(),
+                    const _NextButton(),
                   ],
                 ),
               ],
@@ -296,10 +282,10 @@ class TodoDialog extends StatelessWidget {
   }
 }
 
-class TimePicker extends StatelessWidget {
+class _TimePicker extends StatelessWidget {
   final TodoCubit cubit;
 
-  const TimePicker({super.key, required this.cubit});
+  const _TimePicker({required this.cubit});
 
   @override
   Widget build(BuildContext context) {
@@ -328,10 +314,10 @@ class TimePicker extends StatelessWidget {
   }
 }
 
-class CategoryPicker extends StatelessWidget {
+class _CategoryPicker extends StatelessWidget {
   final TodoCubit cubit;
 
-  const CategoryPicker({super.key, required this.cubit});
+  const _CategoryPicker({required this.cubit});
 
   @override
   Widget build(BuildContext context) {
@@ -360,7 +346,7 @@ class CategoryPicker extends StatelessWidget {
                               fontSize: 20.sp,
                             ),
                           ),
-                          CategoryCard(category: state.category!)
+                          _CategoryCard(category: state.category!)
                         ],
                       ),
                 Row(
@@ -372,7 +358,7 @@ class CategoryPicker extends StatelessWidget {
                             context.read<TodoCubit>().setCategory(category);
                             context.router.maybePop();
                           },
-                          child: CategoryCard(
+                          child: _CategoryCard(
                             category: category,
                           ),
                         );
@@ -389,10 +375,10 @@ class CategoryPicker extends StatelessWidget {
   }
 }
 
-class PriorityPicker extends StatelessWidget {
+class _PriorityPicker extends StatelessWidget {
   final TodoCubit cubit;
 
-  const PriorityPicker({super.key, required this.cubit});
+  const _PriorityPicker({required this.cubit});
 
   @override
   Widget build(BuildContext context) {
@@ -422,7 +408,7 @@ class PriorityPicker extends StatelessWidget {
                               fontSize: 20.sp,
                             ),
                           ),
-                          PriorityCard(
+                          _PriorityCard(
                             priority: state.priority!,
                           ),
                         ],
@@ -437,7 +423,7 @@ class PriorityPicker extends StatelessWidget {
                             context.read<TodoCubit>().setPriority(priority),
                             context.router.maybePop(),
                           },
-                          child: PriorityCard(
+                          child: _PriorityCard(
                             priority: priority,
                           ),
                         );
@@ -454,8 +440,8 @@ class PriorityPicker extends StatelessWidget {
   }
 }
 
-class NextButton extends StatelessWidget {
-  const NextButton({super.key});
+class _NextButton extends StatelessWidget {
+  const _NextButton();
 
   @override
   Widget build(BuildContext context) {
@@ -485,14 +471,14 @@ class NextButton extends StatelessWidget {
   }
 }
 
-class TodoTitleForm extends StatefulWidget {
-  const TodoTitleForm({super.key});
+class _TodoTitleForm extends StatefulWidget {
+  const _TodoTitleForm();
 
   @override
-  State<TodoTitleForm> createState() => _TodoTitleFormState();
+  State<_TodoTitleForm> createState() => __TodoTitleFormState();
 }
 
-class _TodoTitleFormState extends State<TodoTitleForm> {
+class __TodoTitleFormState extends State<_TodoTitleForm> {
   final controller = TextEditingController();
 
   @override
@@ -543,16 +529,16 @@ class _TodoTitleFormState extends State<TodoTitleForm> {
   }
 }
 
-class TodoCard extends StatefulWidget {
+class _TodoCard extends StatefulWidget {
   final TodoModel todo;
 
-  const TodoCard({super.key, required this.todo});
+  const _TodoCard({required this.todo});
 
   @override
-  State<TodoCard> createState() => _TodoCardState();
+  State<_TodoCard> createState() => __TodoCardState();
 }
 
-class _TodoCardState extends State<TodoCard> {
+class __TodoCardState extends State<_TodoCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -620,8 +606,8 @@ class _TodoCardState extends State<TodoCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      TodoTitle(title: widget.todo.title!),
-                      TodoDescription(
+                      _TodoTitle(title: widget.todo.title!),
+                      _TodoDescription(
                         category: widget.todo.category!,
                         endDate: widget.todo.endDate!,
                       ),
@@ -637,9 +623,9 @@ class _TodoCardState extends State<TodoCard> {
   }
 }
 
-class TodoTitle extends StatelessWidget {
+class _TodoTitle extends StatelessWidget {
   final String title;
-  const TodoTitle({super.key, required this.title});
+  const _TodoTitle({required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -656,11 +642,10 @@ class TodoTitle extends StatelessWidget {
   }
 }
 
-class TodoDescription extends StatelessWidget {
+class _TodoDescription extends StatelessWidget {
   final TodoCategoryEnum category;
   final DateTime endDate;
-  const TodoDescription(
-      {super.key, required this.category, required this.endDate});
+  const _TodoDescription({required this.category, required this.endDate});
 
   @override
   Widget build(BuildContext context) {
@@ -677,7 +662,7 @@ class TodoDescription extends StatelessWidget {
           ),
           Row(
             children: [
-              CategoryCard(category: category),
+              _CategoryCard(category: category),
               SizedBox(width: 10.w),
             ],
           )
@@ -687,10 +672,10 @@ class TodoDescription extends StatelessWidget {
   }
 }
 
-class PriorityCard extends StatelessWidget {
+class _PriorityCard extends StatelessWidget {
   final PriorityEnum priority;
 
-  const PriorityCard({super.key, required this.priority});
+  const _PriorityCard({required this.priority});
 
   @override
   Widget build(BuildContext context) {
@@ -718,9 +703,9 @@ class PriorityCard extends StatelessWidget {
   }
 }
 
-class CategoryCard extends StatelessWidget {
+class _CategoryCard extends StatelessWidget {
   final TodoCategoryEnum category;
-  const CategoryCard({super.key, required this.category});
+  const _CategoryCard({required this.category});
 
   @override
   Widget build(BuildContext context) {

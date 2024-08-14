@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:firebase_demo/utils/custom/custom_appbar.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,22 +22,13 @@ class SocialPage extends StatelessWidget {
       child: BlocBuilder<FriendCubit, SocialState>(
         builder: (context, state) {
           return Scaffold(
-            appBar: AppBar(
-              toolbarHeight: 80.h,
-              title: const Text("Social"),
-              flexibleSpace: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: <Color>[
-                      Color(0xff3461FD),
-                      Color(0xAA3461FD),
-                      Color(0x003461FD),
-                    ],
-                  ),
-                ),
-              ),
+            appBar: CustomAppbar(
+              title: "Social",
+              centerTitle: false,
+              leadingOnPressed: () {
+                context.router.maybePop();
+              },
+              leadingIcon: const Icon(Icons.arrow_back),
             ),
             backgroundColor: Colors.white,
             body: SafeArea(
@@ -67,7 +59,10 @@ class SocialPage extends StatelessWidget {
                       },
                       itemBuilder: (context, value) {
                         return ListTile(
-                          title: Text(value.name!),
+                          title: Text(
+                            value.name!,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
                         );
                       },
                       onSelected: (friend) => {

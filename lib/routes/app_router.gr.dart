@@ -9,6 +9,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:auto_route/auto_route.dart' as _i16;
+import 'package:firebase_demo/features/auth/models/user_model.dart' as _i18;
 import 'package:firebase_demo/features/auth/pages/create_acoount_page.dart'
     as _i1;
 import 'package:firebase_demo/features/auth/pages/forgot_password_page.dart'
@@ -17,7 +18,6 @@ import 'package:firebase_demo/features/auth/pages/login_page.dart' as _i6;
 import 'package:firebase_demo/features/auth/pages/set_name_page.dart' as _i10;
 import 'package:firebase_demo/features/auth/pages/splash_page.dart' as _i12;
 import 'package:firebase_demo/features/user/model/todo_model.dart' as _i19;
-import 'package:firebase_demo/features/user/model/user_model.dart' as _i18;
 import 'package:firebase_demo/features/user/pages/friend_profile_page.dart'
     as _i3;
 import 'package:firebase_demo/features/user/pages/home_page.dart' as _i4;

@@ -2,16 +2,16 @@ import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_demo/features/user/cubit/home_cubit.dart';
-import 'package:firebase_demo/features/user/data/constants.dart';
-import 'package:firebase_demo/features/user/data/enums/todo_category_enum.dart';
+import 'package:firebase_demo/features/user/model/enum/todo_category_enum.dart';
 import 'package:firebase_demo/features/user/data/profile_local_data.dart';
 import 'package:firebase_demo/features/user/model/todo_model.dart';
-import 'package:firebase_demo/features/user/model/user_model.dart';
+import 'package:firebase_demo/features/auth/models/user_model.dart';
 import 'package:flutter/material.dart';
 
-import '../data/enums/priority_enum.dart';
+import '../../../utils/constants.dart';
+import '../model/enum/priority_enum.dart';
 
-part 'todo_state.dart';
+part '../state/todo_state.dart';
 
 class TodoCubit extends Cubit<TodoState> {
   final HomeCubit homeCubit;
@@ -261,7 +261,7 @@ class TodoCubit extends Cubit<TodoState> {
 
   void setCurrentTitle(TodoModel currentTodo, String newTitle) async {
     final updatedTodos = List<TodoModel>.from(state.todoList);
-    updatedTodos[updatedTodos.indexOf(currentTodo)].title = newTitle;
+    updatedTodos[updatedTodos.indexOf(currentTodo)].copyWith(title: newTitle);
 
     List<Map<String, dynamic>> mappedTodos = [];
     for (var todo in updatedTodos) {

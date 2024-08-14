@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_demo/features/user/cubit/home_cubit.dart';
-import 'package:firebase_demo/features/user/widgets/flushbars.dart';
+import 'package:firebase_demo/features/auth/widgets/flushbars.dart';
 import 'package:firebase_demo/routes/app_router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
+import '../../../utils/custom/custom_appbar.dart';
 import '../cubit/todo_cubit.dart';
 import '../model/todo_model.dart';
 
@@ -20,7 +21,12 @@ class TodoDetailsPage extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<TodoCubit>();
         return Scaffold(
-          appBar: AppBar(
+          appBar: CustomAppbar(
+            centerTitle: false,
+            leadingIcon: const Icon(Icons.arrow_back),
+            leadingOnPressed: () {
+              context.router.maybePop();
+            },
             actions: [
               GestureDetector(
                 onTap: () {
@@ -29,7 +35,7 @@ class TodoDetailsPage extends StatelessWidget {
                     builder: (context) {
                       return BlocProvider.value(
                         value: cubit,
-                        child: ChangeTitleDialog(cubit: cubit, todo: todo),
+                        child: _ChangeTitleDialog(cubit: cubit, todo: todo),
                       );
                     },
                   );
@@ -38,21 +44,7 @@ class TodoDetailsPage extends StatelessWidget {
               ),
               Padding(padding: EdgeInsets.only(right: 20.w))
             ],
-            toolbarHeight: 80.h,
-            title: Text("${todo.title}"),
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: <Color>[
-                    Color(0xff3461FD),
-                    Color(0xAA3461FD),
-                    Color(0x003461FD),
-                  ],
-                ),
-              ),
-            ),
+            title: "${todo.title}",
           ),
           body: SafeArea(
               child: Container(
@@ -60,20 +52,20 @@ class TodoDetailsPage extends StatelessWidget {
             child: Column(
               children: [
                 SizedBox(height: 40.h),
-                TaskDeatilRow(
+                _TaskDeatilRow(
                   assetPath: "assets/timer.png",
                   detailTitle: "Time",
                   info:
                       "${DateFormat.MEd().format(todo.endDate!)} ${todo.endDate!.hour}:${todo.endDate!.minute}",
                 ),
                 SizedBox(height: 40.h),
-                TaskDeatilRow(
+                _TaskDeatilRow(
                   assetPath: "assets/tag.png",
                   detailTitle: "Category",
                   info: todo.category!.name,
                 ),
                 SizedBox(height: 40.h),
-                TaskDeatilRow(
+                _TaskDeatilRow(
                   assetPath: "assets/flag.png",
                   detailTitle: "Priority",
                   info: todo.priority!.text,
@@ -87,9 +79,8 @@ class TodoDetailsPage extends StatelessWidget {
   }
 }
 
-class TaskDeatilRow extends StatelessWidget {
-  const TaskDeatilRow({
-    super.key,
+class _TaskDeatilRow extends StatelessWidget {
+  const _TaskDeatilRow({
     required this.assetPath,
     required this.detailTitle,
     required this.info,
@@ -114,22 +105,21 @@ class TaskDeatilRow extends StatelessWidget {
             SizedBox(width: 10.w),
             Text(
               "Task $detailTitle:",
-              style: TextStyle(fontSize: 16.sp),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
         ),
         Text(
           info,
-          style: TextStyle(fontSize: 16.sp),
+          style: Theme.of(context).textTheme.bodyMedium,
         )
       ],
     );
   }
 }
 
-class ChangeTitleDialog extends StatefulWidget {
-  const ChangeTitleDialog({
-    super.key,
+class _ChangeTitleDialog extends StatefulWidget {
+  const _ChangeTitleDialog({
     required this.cubit,
     required this.todo,
   });
@@ -138,10 +128,10 @@ class ChangeTitleDialog extends StatefulWidget {
   final TodoModel todo;
 
   @override
-  State<ChangeTitleDialog> createState() => _ChangeTitleDialogState();
+  State<_ChangeTitleDialog> createState() => __ChangeTitleDialogState();
 }
 
-class _ChangeTitleDialogState extends State<ChangeTitleDialog> {
+class __ChangeTitleDialogState extends State<_ChangeTitleDialog> {
   final controller = TextEditingController();
   @override
   void dispose() {
@@ -163,7 +153,7 @@ class _ChangeTitleDialogState extends State<ChangeTitleDialog> {
           children: [
             Text(
               "Edit title",
-              style: TextStyle(fontSize: 20.sp),
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
             Form(
               key: _formKey,
@@ -197,7 +187,7 @@ class _ChangeTitleDialogState extends State<ChangeTitleDialog> {
                 ),
               ),
             ),
-            DialogButtons(widget: widget, controller: controller),
+            _DialogButtons(widget: widget, controller: controller),
           ],
         ),
       ),
@@ -205,68 +195,81 @@ class _ChangeTitleDialogState extends State<ChangeTitleDialog> {
   }
 }
 
-class DialogButtons extends StatefulWidget {
-  const DialogButtons({
-    super.key,
+class _DialogButtons extends StatefulWidget {
+  const _DialogButtons({
     required this.widget,
     required this.controller,
   });
 
-  final ChangeTitleDialog widget;
+  final _ChangeTitleDialog widget;
   final TextEditingController controller;
 
   @override
-  State<DialogButtons> createState() => _DialogButtonsState();
+  State<_DialogButtons> createState() => _DialogButtonsState();
 }
 
-class _DialogButtonsState extends State<DialogButtons> {
+class _DialogButtonsState extends State<_DialogButtons> {
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        TextButton(
-          onPressed: () => context.router.maybePop(),
-          style: ButtonStyle(
-            shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.r),
-              ),
-            ),
-            side: WidgetStatePropertyAll(
-              BorderSide(color: Colors.black, width: 1.w),
-            ),
-          ),
-          child: const Text(
-            "Cancel",
-            style: TextStyle(color: Colors.black),
-          ),
+        _DialogButton(
+          onPressed: () {
+            context.router.maybePop();
+          },
+          text: "Cancel",
+          fillColor: null,
         ),
-        TextButton(
-          style: ButtonStyle(
-            backgroundColor: const WidgetStatePropertyAll(
-              Color(0xff3461FD),
-            ),
-            shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.r),
-              ),
-            ),
-          ),
-          onPressed: () => {
+        _DialogButton(
+          onPressed: () {
             widget.widget.cubit.setCurrentTitle(
               widget.widget.todo,
               widget.controller.text,
-            ),
-            widget.controller.clear(),
-            context.router.maybePop()
+            );
+            widget.controller.clear();
+            context.router.maybePop();
           },
-          child: const Text(
-            "Change",
-            style: TextStyle(color: Colors.white),
-          ),
-        )
+          text: "Change",
+          fillColor: const Color(0xff3461FD),
+        ),
       ],
+    );
+  }
+}
+
+class _DialogButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  final String text;
+  final Color? fillColor;
+
+  const _DialogButton({
+    required this.onPressed,
+    required this.text,
+    required this.fillColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 30.h,
+      width: 70.w,
+      child: TextButton(
+        onPressed: onPressed,
+        style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(fillColor)),
+        child: Text(
+          text,
+          style: fillColor != null
+              ? Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Colors.white)
+              : Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Colors.black),
+        ),
+      ),
     );
   }
 }

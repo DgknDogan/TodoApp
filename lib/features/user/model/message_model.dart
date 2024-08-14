@@ -1,11 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-class MessageModel {
+part 'message_model.g.dart';
+
+@JsonSerializable()
+class MessageModel extends Equatable {
   final String friendUserUid;
   final String text;
   final DateTime time;
 
-  MessageModel({
+  const MessageModel({
     required this.friendUserUid,
     required this.text,
     required this.time,
@@ -23,31 +27,15 @@ class MessageModel {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'friendUserUid': friendUserUid,
-      'text': text,
-      'time': time,
-    };
-  }
+  factory MessageModel.fromJson(Map<String, dynamic> json) =>
+      _$MessageModelFromJson(json);
 
-  factory MessageModel.fromJson(Map<String, dynamic> json) {
-    return MessageModel(
-      friendUserUid: json['friendUserUid'] as String,
-      text: json['text'] as String,
-      time: (json['time'] as Timestamp).toDate(),
-    );
-  }
+  Map<String, dynamic> toJson() => _$MessageModelToJson(this);
 
   @override
-  int get hashCode => Object.hash(friendUserUid, text, time);
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MessageModel &&
-          runtimeType == other.runtimeType &&
-          friendUserUid == other.friendUserUid &&
-          text == other.text &&
-          time == other.time;
+  List<Object?> get props => [
+        friendUserUid,
+        text,
+        time,
+      ];
 }

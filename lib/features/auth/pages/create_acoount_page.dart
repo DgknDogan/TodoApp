@@ -1,16 +1,17 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_demo/routes/app_router.gr.dart';
+import 'package:firebase_demo/utils/custom/custom_elevated_button.dart';
+import 'package:firebase_demo/utils/custom/custom_text_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../user/widgets/alternative_auth_buttons.dart';
-import '../../user/widgets/divider.dart';
-import '../../user/widgets/flushbars.dart';
-import '../../user/widgets/form_fields.dart';
-import '../../user/widgets/header_text.dart';
-import '../../user/widgets/main_button.dart';
+import '../widgets/alternative_auth_buttons.dart';
+import '../widgets/divider.dart';
+import '../widgets/flushbars.dart';
+import '../widgets/form_fields.dart';
+import '../widgets/header_text.dart';
 import '../cubit/register_cubit.dart';
 
 @RoutePage()
@@ -167,10 +168,22 @@ class CheckBoxRow extends StatelessWidget {
                   return Container(
                     height: 300.h,
                     padding: EdgeInsets.all(24.r),
-                    child: const Column(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet tellus nec ornare hendrerit. Vivamus a arcu tellus. Sed ut ex ut nisi porttitor convallis. Vestibulum efficitur metus id tristique auctor. Mauris mollis orci at leo luctus ornare. Ut elementum sapien non elit congue ullamcorper. Proin nec ex in nisl vestibulum consectetur. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse ornare lorem et nisi sagittis, vel imperdiet urna faucibus.")
+                        IconButton(
+                          style: const ButtonStyle(
+                            padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: () {
+                            context.router.maybePop();
+                          },
+                          icon: const Icon(Icons.close),
+                        ),
+                        SizedBox(height: 10.h),
+                        const Text(
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet tellus nec ornare hendrerit. Vivamus a arcu tellus. Sed ut ex ut nisi porttitor convallis. Vestibulum efficitur metus id tristique auctor. Mauris mollis orci at leo luctus ornare. Ut elementum sapien non elit congue ullamcorper. Proin nec ex in nisl vestibulum consectetur. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.")
                       ],
                     ),
                   );
@@ -220,13 +233,15 @@ class CreateAccountSection extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 37.h),
-            MainButton(
-              mailController: mailController,
-              passwordController: passwordController,
-              text: "Create Account",
-              function: context.read<RegisterCubit>().register,
-            ),
+            CustomElevatedButton(
+                height: 60,
+                onPressed: () {
+                  context.read<RegisterCubit>().register(
+                        email: mailController.text,
+                        password: passwordController.text,
+                      );
+                },
+                text: "Create Account"),
             SizedBox(height: 16.h),
             SingInRowText(
               mailController: mailController,
@@ -260,25 +275,14 @@ class SingInRowText extends StatelessWidget {
             fontSize: 14.sp,
           ),
         ),
-        TextButton(
-          style: const ButtonStyle(
-            minimumSize: WidgetStatePropertyAll(Size.zero),
-            padding: WidgetStatePropertyAll(EdgeInsets.zero),
-          ),
-          onPressed: () => {
-            context.router.push(const LoginRoute()),
-            context.read<RegisterCubit>().initializeState(),
-            mailController.clear(),
-            passwordController.clear(),
-          },
-          child: Text(
-            "Sign In",
-            style: TextStyle(
-              color: const Color(0xff2A4ECA),
-              fontSize: 14.sp,
-            ),
-          ),
-        )
+        CustomTextButton(
+            text: "Sign In",
+            onPressed: () {
+              context.router.push(const LoginRoute());
+              context.read<RegisterCubit>().initializeState();
+              mailController.clear();
+              passwordController.clear();
+            })
       ],
     );
   }

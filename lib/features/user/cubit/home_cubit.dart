@@ -5,14 +5,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_demo/features/user/data/profile_local_data.dart';
 import 'package:firebase_demo/features/user/model/chart_model.dart';
 import 'package:firebase_demo/features/user/model/todo_model.dart';
-import 'package:firebase_demo/features/user/model/user_model.dart';
+import 'package:firebase_demo/features/auth/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../service/notification_service.dart';
+import '../../../services/notification_service.dart';
 
-part 'home_state.dart';
+part '../state/home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   HomeCubit()

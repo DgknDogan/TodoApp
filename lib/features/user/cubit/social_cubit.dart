@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_demo/features/user/model/user_model.dart';
+import 'package:firebase_demo/features/auth/models/user_model.dart';
 
-part 'social_state.dart';
+part '../state/social_state.dart';
 
 class FriendCubit extends Cubit<SocialState> {
   FriendCubit()

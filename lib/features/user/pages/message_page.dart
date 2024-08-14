@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_demo/utils/custom/custom_appbar.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../cubit/message_cubit.dart';
 import '../model/message_model.dart';
-import '../model/user_model.dart';
+import '../../auth/models/user_model.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -52,36 +53,19 @@ class _MessagePageState extends State<MessagePage> {
               state.messagesList.length, (index) => GlobalObjectKey(index));
 
           return Scaffold(
-            appBar: AppBar(
-              leading: IconButton(
-                onPressed: () async {
-                  await context.read<MessageCubit>().close();
-                  if (context.mounted) {
-                    context.router.maybePop();
-                  }
-                },
-                icon: const Icon(
-                  Icons.arrow_back,
-                ),
-              ),
+            appBar: CustomAppbar(
+              leadingIcon: const Icon(Icons.arrow_back),
+              leadingOnPressed: () async {
+                await context.read<MessageCubit>().close();
+                if (context.mounted) {
+                  context.router.maybePop();
+                }
+              },
+              centerTitle: false,
               systemOverlayStyle: SystemUiOverlayStyle(
                 systemNavigationBarColor: Colors.blue.shade600,
               ),
-              toolbarHeight: 80.h,
-              title: Text("Message ${widget.friend.name}"),
-              flexibleSpace: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: <Color>[
-                      Color(0xff3461FD),
-                      Color(0xAA3461FD),
-                      Color(0x003461FD),
-                    ],
-                  ),
-                ),
-              ),
+              title: "Message ${widget.friend.name}",
               actions: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(90.r),
@@ -105,7 +89,7 @@ class _MessagePageState extends State<MessagePage> {
                       controller: scrollController,
                       itemCount: state.messagesList.length,
                       itemBuilder: (context, index) {
-                        return MessageCard(
+                        return _MessageCard(
                           globalKey: keys[index],
                           message: state.messagesList[index],
                         );
@@ -203,12 +187,11 @@ class _SendMessageTextfieldState extends State<SendMessageTextfield> {
   }
 }
 
-class MessageCard extends StatelessWidget {
+class _MessageCard extends StatelessWidget {
   final MessageModel message;
   final GlobalKey globalKey;
 
-  const MessageCard({
-    super.key,
+  const _MessageCard({
     required this.globalKey,
     required this.message,
   });
@@ -246,17 +229,26 @@ class MessageCard extends StatelessWidget {
                   ? [
                       PopupMenuItem(
                         onTap: () => cubit.removeFromEverybody(message),
-                        child: const Text("Remove from everybody"),
+                        child: Text(
+                          "Remove from everybody",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
                       ),
                       PopupMenuItem(
                         onTap: () => cubit.removeFromMe(message),
-                        child: const Text("Remove from me"),
+                        child: Text(
+                          "Remove from me",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
                       ),
                     ]
                   : [
                       PopupMenuItem(
                         onTap: () => cubit.removeFromMe(message),
-                        child: const Text("Remove from me"),
+                        child: Text(
+                          "Remove from me",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
                       ),
                     ],
             );
@@ -272,9 +264,15 @@ class MessageCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(message.text),
+                Text(
+                  message.text,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 SizedBox(height: 3.h),
-                Text(message.time.toString()),
+                Text(
+                  message.time.toString(),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ],
             ),
           ),

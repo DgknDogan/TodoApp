@@ -1,4 +1,4 @@
-part of 'friend_profile_cubit.dart';
+part of '../cubit/friend_profile_cubit.dart';
 
 class FriendProfileState {
   final bool? isFriendActive;
