@@ -1,16 +1,18 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_demo/features/auth/widgets/flushbars.dart';
 import 'package:firebase_demo/utils/custom/custom_elevated_button.dart';
+import 'package:firebase_demo/utils/custom/custom_text_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../routes/app_router.gr.dart';
+import '../../../utils/custom/custom_text_field.dart';
 import '../widgets/alternative_auth_buttons.dart';
 import '../widgets/divider.dart';
-import '../widgets/flushbars.dart';
-import '../widgets/form_fields.dart';
 import '../widgets/header_text.dart';
 import '../cubit/login_cubit.dart';
 
@@ -29,10 +31,10 @@ class LoginPage extends HookWidget {
       child: BlocConsumer<LoginCubit, LoginState>(
         listener: (context, state) {
           if (state is LoginFailed) {
-            errorFlushbar(state.message).show(context);
+            customFlushbar(state.message, Colors.red).show(context);
           }
           if (state is LoginSuccess) {
-            successFlushbar(state.message).show(context);
+            customFlushbar(state.message, Colors.green).show(context);
 
             Future.delayed(
               const Duration(milliseconds: 2000),
@@ -53,31 +55,39 @@ class LoginPage extends HookWidget {
           return Scaffold(
             backgroundColor: Colors.white,
             resizeToAvoidBottomInset: false,
-            body: SafeArea(
-              child: Container(
-                width: width,
-                margin: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 80.h),
-                    const HeaderText(
-                      title: "Sign In",
-                      text:
-                          "It was popularised in the 1960s with the release of Letraset sheetscontaining Lorem Ipsum.",
-                    ),
-                    SizedBox(height: 24.h),
-                    SignUpFormSection(
-                      mailController: mailController,
-                      passwordController: passwordController,
-                    ),
-                    SizedBox(height: 37.h),
-                    LoginSection(
-                      mailController: mailController,
-                      passwordController: passwordController,
-                    )
-                  ],
-                ),
+            body: Container(
+              margin: EdgeInsets.symmetric(horizontal: 24.w),
+              width: width,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(height: 80.h),
+                  const HeaderText(
+                    title: "Sign In",
+                    text:
+                        "It was popularised in the 1960s with the release of Letraset sheetscontaining Lorem Ipsum.",
+                  ),
+                  SizedBox(height: 24.h),
+                  _SignInFormSection(
+                    mailController: mailController,
+                    passwordController: passwordController,
+                  ),
+                  SizedBox(height: 8.h),
+                  _ForgetPasswordText(
+                    mailController: mailController,
+                    passwordController: passwordController,
+                  ),
+                  SizedBox(height: 37.h),
+                  _LoginSection(
+                    mailController: mailController,
+                    passwordController: passwordController,
+                  ),
+                  SizedBox(height: 20.h),
+                  _SignUpTextRow(
+                    mailController: mailController,
+                    passwordController: passwordController,
+                  )
+                ],
               ),
             ),
           );
@@ -87,21 +97,20 @@ class LoginPage extends HookWidget {
   }
 }
 
-class SignUpFormSection extends StatefulWidget {
+class _SignInFormSection extends StatefulWidget {
   final TextEditingController mailController;
   final TextEditingController passwordController;
 
-  const SignUpFormSection({
-    super.key,
+  const _SignInFormSection({
     required this.mailController,
     required this.passwordController,
   });
 
   @override
-  State<SignUpFormSection> createState() => _SignUpFormSectionState();
+  State<_SignInFormSection> createState() => _SignInFormSectionState();
 }
 
-class _SignUpFormSectionState extends State<SignUpFormSection> {
+class _SignInFormSectionState extends State<_SignInFormSection> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoginCubit, LoginState>(
@@ -125,18 +134,46 @@ class _SignUpFormSectionState extends State<SignUpFormSection> {
                 SizedBox(height: 16.h),
                 const ButtonFormDivider(),
                 SizedBox(height: 16.h),
-                EmailFormField(mailController: widget.mailController),
-                SizedBox(height: 16.h),
-                PasswordFormField(
-                  passwordController: widget.passwordController,
-                  showHidePassword: context.read<LoginCubit>().showHidePassword,
-                  isObsecured: state.isObsecured,
+                CustomTextField(
+                  textController: widget.mailController,
+                  validator: (email) {
+                    if (!EmailValidator.validate(email!)) {
+                      return "Enter a valid email";
+                    } else {
+                      return null;
+                    }
+                  },
+                  hintText: "Email",
                 ),
-                SizedBox(height: 8.h),
-                ForgetPasswordText(
-                  mailController: widget.mailController,
-                  passwordController: widget.passwordController,
-                )
+                SizedBox(height: 16.h),
+                CustomTextField(
+                  textController: widget.passwordController,
+                  validator: (password) {
+                    if (password!.isEmpty && password.length < 6) {
+                      return "Enter a valid password";
+                    } else {
+                      return null;
+                    }
+                  },
+                  hintText: "Password",
+                  isObsecured: state.isObsecured,
+                  suffixIcon: Padding(
+                    padding: EdgeInsets.only(right: 24.w),
+                    child: GestureDetector(
+                      onTap: () {
+                        context.read<LoginCubit>().showHidePassword();
+                      },
+                      child: widget.passwordController.text.isNotEmpty
+                          ? Icon(
+                              state.isObsecured
+                                  ? Icons.sunny
+                                  : Icons.nightlight_round_outlined,
+                              color: const Color(0xff7C8BA0),
+                            )
+                          : const SizedBox(),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -146,9 +183,8 @@ class _SignUpFormSectionState extends State<SignUpFormSection> {
   }
 }
 
-class ForgetPasswordText extends StatelessWidget {
-  const ForgetPasswordText({
-    super.key,
+class _ForgetPasswordText extends StatelessWidget {
+  const _ForgetPasswordText({
     required this.mailController,
     required this.passwordController,
   });
@@ -169,12 +205,6 @@ class ForgetPasswordText extends StatelessWidget {
               Row(
                 children: [
                   Checkbox(
-                    visualDensity:
-                        const VisualDensity(horizontal: -4, vertical: -4),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    fillColor: const WidgetStatePropertyAll(Color(0xffF5F9FE)),
-                    checkColor: Colors.black,
-                    splashRadius: 0,
                     value: state.isRemembered,
                     onChanged: (value) =>
                         context.read<LoginCubit>().checkBox(value!),
@@ -211,14 +241,14 @@ class ForgetPasswordText extends StatelessWidget {
   }
 }
 
-class LoginSection extends StatelessWidget {
+class _LoginSection extends StatelessWidget {
   final TextEditingController mailController;
   final TextEditingController passwordController;
 
-  const LoginSection(
-      {super.key,
-      required this.mailController,
-      required this.passwordController});
+  const _LoginSection({
+    required this.mailController,
+    required this.passwordController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -227,6 +257,7 @@ class LoginSection extends StatelessWidget {
         return Column(
           children: [
             CustomElevatedButton(
+                width: double.infinity,
                 height: 60,
                 onPressed: () {
                   context.read<LoginCubit>().login(
@@ -235,11 +266,6 @@ class LoginSection extends StatelessWidget {
                       );
                 },
                 text: "Log In"),
-            SizedBox(height: 20.h),
-            SignUpTextRow(
-              mailController: mailController,
-              passwordController: passwordController,
-            )
           ],
         );
       },
@@ -247,9 +273,8 @@ class LoginSection extends StatelessWidget {
   }
 }
 
-class SignUpTextRow extends StatelessWidget {
-  const SignUpTextRow({
-    super.key,
+class _SignUpTextRow extends StatelessWidget {
+  const _SignUpTextRow({
     required this.mailController,
     required this.passwordController,
   });
@@ -268,23 +293,13 @@ class SignUpTextRow extends StatelessWidget {
             fontSize: 14.sp,
           ),
         ),
-        TextButton(
-          style: const ButtonStyle(
-            minimumSize: WidgetStatePropertyAll(Size.zero),
-            padding: WidgetStatePropertyAll(EdgeInsets.zero),
-          ),
-          onPressed: () => {
-            context.router.replace(const CreateAccountRoute()),
-            mailController.clear(),
-            passwordController.clear(),
+        CustomTextButton(
+          text: "Sign Up",
+          onPressed: () {
+            context.router.replace(const CreateAccountRoute());
+            mailController.clear();
+            passwordController.clear();
           },
-          child: Text(
-            "Sign Up",
-            style: TextStyle(
-              color: const Color(0xff2A4ECA),
-              fontSize: 14.sp,
-            ),
-          ),
         )
       ],
     );

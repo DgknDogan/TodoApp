@@ -187,22 +187,18 @@ class HomeCubit extends Cubit<HomeState> {
         .toList();
 
     List<dynamic> sortedTopUsers = List.filled(3, null);
-    if (usersWithNames.length > 3) {
+    if (usersWithNames.length >= 3) {
       final sortedUsers = usersWithNames
         ..sublist(0, 3)
         ..sort(
           (a, b) => b.points.compareTo(a.points),
         )
         ..toList();
-      int i = 0;
-      for (var user in sortedUsers) {
-        sortedTopUsers.insert(i, user);
-        i++;
-      }
+
       emit(state.copyWith(
-        firstUser: sortedTopUsers[0],
-        secondUser: sortedTopUsers[1],
-        thirdUser: sortedTopUsers[2],
+        firstUser: sortedUsers[0],
+        secondUser: sortedUsers[1],
+        thirdUser: sortedUsers[2],
         isLoading: true,
       ));
     } else if (usersWithNames.length < 3 && usersWithNames.isNotEmpty) {
@@ -228,7 +224,7 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(userName: _auth.currentUser!.displayName ?? ""));
   }
 
-  bool isTextFieldChanged(TextEditingController controller) {
-    return controller.text.isNotEmpty;
+  bool isTextFieldChanged(String controllerText) {
+    return controllerText.isNotEmpty;
   }
 }

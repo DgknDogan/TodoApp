@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
         return BlocProvider(
           create: (context) => HomeCubit(),
           child: MaterialApp.router(
-            theme: theme,
+            theme: lightTheme,
             debugShowCheckedModeBanner: false,
             routerConfig: _appRouter.config(),
             title: 'TodoApp',

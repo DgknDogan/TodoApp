@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../routes/app_router.gr.dart';
-import '../cubit/messages_initial_cubit.dart';
+import '../../../../routes/app_router.gr.dart';
+import '../../cubit/messages_initial_cubit.dart';
 
 @RoutePage()
 class MessagesInitialPage extends StatelessWidget {
@@ -29,27 +29,24 @@ class MessagesInitialPage extends StatelessWidget {
               leadingOnPressed: () {
                 context.router.maybePop();
               },
-              leadingIcon: const Icon(Icons.arrow_back),
             ),
-            body: SafeArea(
-              child: ListView.builder(
-                itemCount: state.friendsList.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: Icon(
-                      Icons.account_circle_rounded,
-                      size: 50.r,
-                    ),
-                    splashColor: Colors.grey,
-                    onTap: () => context.router
-                        .push(MessageRoute(friend: state.friendsList[index])),
-                    title: Text(
-                      state.friendsList[index].name!,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  );
-                },
-              ),
+            body: ListView.builder(
+              itemCount: state.friendsList.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  leading: Icon(
+                    Icons.account_circle_rounded,
+                    size: 50.r,
+                  ),
+                  splashColor: Colors.grey,
+                  onTap: () => context.router
+                      .push(MessageRoute(friend: state.friendsList[index])),
+                  title: Text(
+                    state.friendsList[index].name!,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                );
+              },
             ),
           );
         },

@@ -20,7 +20,7 @@ class ButtonFormDivider extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 11.w),
           child: Text(
             'OR',
-            style: TextStyle(fontSize: 14.sp),
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
         Expanded(

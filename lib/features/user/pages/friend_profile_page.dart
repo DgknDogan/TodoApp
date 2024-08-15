@@ -52,7 +52,6 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
                 context.read<FriendProfileCubit>().cancelListener();
                 context.router.maybePop();
               },
-              leadingIcon: const Icon(Icons.arrow_back),
               actions: [
                 SizedBox(width: 10.w),
                 if (state.isFriendWithUser!)
@@ -83,7 +82,10 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
                               .cancelFriendshipRequest();
                         } else {
                           if (_auth.currentUser!.displayName == null) {
-                            errorFlushbar("Set you name!!!").show(context);
+                            customFlushbar(
+                              "Set you name!!!",
+                              Colors.red,
+                            ).show(context);
                           }
                           context
                               .read<FriendProfileCubit>()
@@ -112,7 +114,8 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
                   )
               ],
             ),
-            body: SafeArea(
+            body: Container(
+              margin: EdgeInsets.symmetric(horizontal: 24.w),
               child: _FriendDetails(friend: widget.friend),
             ),
           );
@@ -129,22 +132,19 @@ class _FriendDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 24.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 20.h),
-          Text(
-            "name: ${friend.name!}",
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          Text(
-            "suranme${friend.surname ?? ""}",
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 20.h),
+        Text(
+          "name: ${friend.name!}",
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        Text(
+          "suranme${friend.surname ?? ""}",
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+      ],
     );
   }
 }

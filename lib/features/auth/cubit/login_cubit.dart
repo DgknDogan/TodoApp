@@ -74,7 +74,7 @@ class LoginCubit extends Cubit<LoginState> {
   /// Login with email and password
   void login({required String email, required String password}) async {
     final initialState = (state as LoginInitial);
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     if (initialState.formKey.currentState!.validate()) {
       initialState.formKey.currentState!.save();
 

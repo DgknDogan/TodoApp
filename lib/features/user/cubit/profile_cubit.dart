@@ -4,12 +4,9 @@ import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:flutter/material.dart';
-
-import 'home_cubit.dart';
 import '../data/profile_local_data.dart';
 import '../../auth/models/user_model.dart';
-
+import 'home_cubit.dart';
 part '../state/profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
@@ -83,8 +80,8 @@ class ProfileCubit extends Cubit<ProfileState> {
     ));
   }
 
-  bool isTextFieldChanged(TextEditingController controller, String text) {
-    return controller.text != text && controller.text.isNotEmpty;
+  bool isTextFieldChanged(String controllerText, String text) {
+    return controllerText != text && controllerText.isNotEmpty;
   }
 
   void getFriendRequestList() async {

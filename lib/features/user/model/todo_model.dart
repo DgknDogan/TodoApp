@@ -6,13 +6,19 @@ import 'enum/priority_enum.dart';
 
 part 'todo_model.g.dart';
 
+DateTime? dateTimeFromTimestamp(Timestamp timestamp) {
+  return timestamp.toDate();
+}
+
 @JsonSerializable()
 class TodoModel extends Equatable {
   final String? title;
   final TodoCategoryEnum? category;
   final PriorityEnum? priority;
   final bool? isFinished;
+  // @JsonKey(fromJson: dateTimeFromTimestamp)
   final DateTime? startDate;
+  // @JsonKey(fromJson: dateTimeFromTimestamp)
   final DateTime? endDate;
 
   const TodoModel({

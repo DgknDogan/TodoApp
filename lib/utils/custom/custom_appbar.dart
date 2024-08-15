@@ -5,18 +5,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool centerTitle;
-  final VoidCallback leadingOnPressed;
-  final Icon leadingIcon;
+  final VoidCallback? leadingOnPressed;
+  final Widget? leadingIcon;
   final List<Widget>? actions;
   final SystemUiOverlayStyle? systemOverlayStyle;
-  const CustomAppbar(
-      {super.key,
-      required this.title,
-      required this.centerTitle,
-      required this.leadingOnPressed,
-      required this.leadingIcon,
-      this.actions,
-      this.systemOverlayStyle});
+  const CustomAppbar({
+    super.key,
+    required this.title,
+    required this.centerTitle,
+    this.leadingOnPressed,
+    this.leadingIcon,
+    this.actions,
+    this.systemOverlayStyle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,15 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
       systemOverlayStyle: systemOverlayStyle,
       title: Text(title),
       centerTitle: centerTitle,
-      leading: IconButton(onPressed: leadingOnPressed, icon: leadingIcon),
+      leading: leadingIcon == null
+          ? IconButton(
+              onPressed: leadingOnPressed,
+              icon: const Icon(Icons.arrow_back),
+            )
+          : IconButton(
+              onPressed: leadingOnPressed,
+              icon: leadingIcon!,
+            ),
       actions: actions,
       flexibleSpace: Container(
         decoration: const BoxDecoration(

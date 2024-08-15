@@ -1,12 +1,14 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:firebase_demo/utils/custom/custom_elevated_button.dart';
+import 'package:firebase_demo/utils/custom/custom_text_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
-import '../../../utils/custom/custom_appbar.dart';
-import '../cubit/todo_cubit.dart';
-import '../model/todo_model.dart';
+import '../../../../utils/custom/custom_appbar.dart';
+import '../../cubit/todo_cubit.dart';
+import '../../model/todo_model.dart';
 
 final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -46,8 +48,7 @@ class TodoDetailsPage extends StatelessWidget {
             ],
             title: "${todo.title}",
           ),
-          body: SafeArea(
-              child: Container(
+          body: Container(
             margin: EdgeInsets.symmetric(horizontal: 24.w),
             child: Column(
               children: [
@@ -72,7 +73,7 @@ class TodoDetailsPage extends StatelessWidget {
                 ),
               ],
             ),
-          )),
+          ),
         );
       },
     );
@@ -214,62 +215,24 @@ class _DialogButtonsState extends State<_DialogButtons> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _DialogButton(
-          onPressed: () {
-            context.router.maybePop();
-          },
-          text: "Cancel",
-          fillColor: null,
-        ),
-        _DialogButton(
-          onPressed: () {
-            widget.widget.cubit.setCurrentTitle(
-              widget.widget.todo,
-              widget.controller.text,
-            );
-            widget.controller.clear();
-            context.router.maybePop();
-          },
-          text: "Change",
-          fillColor: const Color(0xff3461FD),
-        ),
+        CustomTextButton(
+            text: "Cancel",
+            onPressed: () {
+              context.router.maybePop();
+            }),
+        CustomElevatedButton(
+            height: 30,
+            width: 70,
+            onPressed: () {
+              widget.widget.cubit.setCurrentTitle(
+                widget.widget.todo,
+                widget.controller.text,
+              );
+              widget.controller.clear();
+              context.router.maybePop();
+            },
+            text: "Change"),
       ],
-    );
-  }
-}
-
-class _DialogButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final String text;
-  final Color? fillColor;
-
-  const _DialogButton({
-    required this.onPressed,
-    required this.text,
-    required this.fillColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 30.h,
-      width: 70.w,
-      child: TextButton(
-        onPressed: onPressed,
-        style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(fillColor)),
-        child: Text(
-          text,
-          style: fillColor != null
-              ? Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.white)
-              : Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.black),
-        ),
-      ),
     );
   }
 }

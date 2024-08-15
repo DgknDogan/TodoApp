@@ -7,9 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../cubit/message_cubit.dart';
-import '../model/message_model.dart';
-import '../../auth/models/user_model.dart';
+import '../../cubit/message_cubit.dart';
+import '../../model/message_model.dart';
+import '../../../auth/models/user_model.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -54,7 +54,6 @@ class _MessagePageState extends State<MessagePage> {
 
           return Scaffold(
             appBar: CustomAppbar(
-              leadingIcon: const Icon(Icons.arrow_back),
               leadingOnPressed: () async {
                 await context.read<MessageCubit>().close();
                 if (context.mounted) {
@@ -97,91 +96,13 @@ class _MessagePageState extends State<MessagePage> {
                     ),
                   ),
                 ),
-                SendMessageTextfield(
+                _SendMessageTextfield(
                   friend: widget.friend,
                 )
               ],
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class SendMessageTextfield extends StatefulWidget {
-  const SendMessageTextfield({
-    super.key,
-    required this.friend,
-  });
-
-  final UserModel friend;
-
-  @override
-  State<SendMessageTextfield> createState() => _SendMessageTextfieldState();
-}
-
-class _SendMessageTextfieldState extends State<SendMessageTextfield> {
-  late final TextEditingController textEditingController;
-
-  @override
-  void initState() {
-    textEditingController = TextEditingController();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    textEditingController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10.h),
-      decoration: BoxDecoration(color: Colors.blue.shade600),
-      child: Row(
-        children: [
-          SizedBox(width: 24.w),
-          Expanded(
-            child: TextField(
-              style: const TextStyle(color: Colors.white),
-              cursorColor: Colors.white,
-              controller: textEditingController,
-              decoration: InputDecoration(
-                fillColor: Colors.blue.shade800,
-                filled: true,
-                hintText: "Send a message",
-                hintStyle: const TextStyle(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(45.r),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: 24.w),
-          IconButton(
-            style: ButtonStyle(
-              backgroundColor: WidgetStatePropertyAll(
-                Colors.green.shade600,
-              ),
-            ),
-            onPressed: () async {
-              if (textEditingController.text.isNotEmpty) {
-                context.read<MessageCubit>().sendMessageToFriend(
-                    textEditingController.text.trim(), widget.friend);
-                textEditingController.clear();
-              }
-            },
-            icon: const Icon(
-              Icons.arrow_forward_ios,
-              color: Colors.white,
-            ),
-          ),
-          SizedBox(width: 24.w),
-        ],
       ),
     );
   }
@@ -277,6 +198,81 @@ class _MessageCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _SendMessageTextfield extends StatefulWidget {
+  const _SendMessageTextfield({required this.friend});
+
+  final UserModel friend;
+
+  @override
+  State<_SendMessageTextfield> createState() => __SendMessageTextfieldState();
+}
+
+class __SendMessageTextfieldState extends State<_SendMessageTextfield> {
+  late final TextEditingController textEditingController;
+
+  @override
+  void initState() {
+    textEditingController = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10.h),
+      decoration: BoxDecoration(color: Colors.blue.shade600),
+      child: Row(
+        children: [
+          SizedBox(width: 24.w),
+          Expanded(
+            child: TextField(
+              style: const TextStyle(color: Colors.white),
+              cursorColor: Colors.white,
+              controller: textEditingController,
+              decoration: InputDecoration(
+                fillColor: Colors.blue.shade800,
+                filled: true,
+                hintText: "Send a message",
+                hintStyle: const TextStyle(color: Colors.white),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(45.r),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 24.w),
+          IconButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStatePropertyAll(
+                Colors.green.shade600,
+              ),
+            ),
+            onPressed: () async {
+              if (textEditingController.text.isNotEmpty) {
+                context.read<MessageCubit>().sendMessageToFriend(
+                    textEditingController.text.trim(), widget.friend);
+                textEditingController.clear();
+              }
+            },
+            icon: const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(width: 24.w),
+        ],
       ),
     );
   }

@@ -13,6 +13,7 @@ import '../../../routes/app_router.gr.dart';
 import '../cubit/home_cubit.dart';
 import '../model/chart_model.dart';
 import '../../auth/models/user_model.dart';
+import '../widgets/drawer.dart';
 
 final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -86,21 +87,48 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              child: SafeArea(
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 24.w),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 24.h),
-                      const _TodoLeaderboard(),
-                      SizedBox(height: 24.h),
-                      const _CompleteProfileCard(),
-                      SizedBox(height: 24.h),
-                      const _UpcomingTodosCard(),
-                      SizedBox(height: 24.h),
-                      const _NewFriendNotificationCard(),
-                    ],
-                  ),
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 24.w),
+                child: Column(
+                  children: [
+                    SizedBox(height: 24.h),
+                    const _TodoLeaderboard(),
+                    SizedBox(height: 24.h),
+                    const _CompleteProfileCard(),
+                    SizedBox(height: 24.h),
+                    _NotificationCard(
+                      splashColor: Colors.red.shade200,
+                      onPressed: () {
+                        context.router.push(const TodoInitialRoute());
+                      },
+                      mainText: "${state.upcomingTodos.length} upcoming todos",
+                      ifCheck: state.upcomingTodos.isNotEmpty,
+                      textColor: Colors.red,
+                      borderColor: Colors.red.shade900,
+                      iconColor: Colors.red,
+                      alignment: Alignment.topLeft,
+                      top: 10,
+                      left: 10,
+                      right: null,
+                    ),
+                    SizedBox(height: 24.h),
+                    _NotificationCard(
+                      splashColor: Colors.blue.shade200,
+                      onPressed: () {
+                        context.router.push(const ProfileRoute());
+                      },
+                      mainText:
+                          "${state.newFriendRequestCount} friend requests",
+                      ifCheck: state.newFriendRequestCount != 0,
+                      textColor: Colors.blue,
+                      borderColor: Colors.blue.shade900,
+                      iconColor: Colors.blue,
+                      alignment: Alignment.topRight,
+                      top: 10,
+                      left: null,
+                      right: 10,
+                    )
+                  ],
                 ),
               ),
             ),
@@ -343,24 +371,46 @@ class _ChartStack extends StatelessWidget {
 }
 // _CompleteProfileCard section
 
-// _UpcomingTodosCard section
-class _UpcomingTodosCard extends StatelessWidget {
-  const _UpcomingTodosCard();
+class _NotificationCard extends StatelessWidget {
+  final String mainText;
+  final bool ifCheck;
+  final Color textColor;
+  final Color borderColor;
+  final Color iconColor;
+  final Color splashColor;
+  final Alignment alignment;
+  final VoidCallback onPressed;
+
+  final double top;
+  final double? left;
+  final double? right;
+
+  const _NotificationCard({
+    required this.splashColor,
+    required this.onPressed,
+    required this.mainText,
+    required this.ifCheck,
+    required this.textColor,
+    required this.borderColor,
+    required this.iconColor,
+    required this.alignment,
+    required this.top,
+    required this.left,
+    required this.right,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
-        return state.upcomingTodos.isNotEmpty
+        return ifCheck
             ? InkWell(
-                highlightColor: Colors.red.shade200,
-                splashColor: Colors.red.shade200,
+                highlightColor: splashColor,
+                splashColor: splashColor,
                 borderRadius: BorderRadius.all(Radius.circular(14.r)),
-                onTap: () {
-                  context.router.push(const TodoInitialRoute());
-                },
+                onTap: onPressed,
                 child: Stack(
-                  alignment: Alignment.topLeft,
+                  alignment: alignment,
                   clipBehavior: Clip.none,
                   children: [
                     Container(
@@ -368,7 +418,7 @@ class _UpcomingTodosCard extends StatelessWidget {
                       padding: EdgeInsets.all(20.r),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: Colors.red.shade900,
+                          color: borderColor,
                           width: 3.r,
                         ),
                         borderRadius: BorderRadius.circular(14.r),
@@ -381,40 +431,31 @@ class _UpcomingTodosCard extends StatelessWidget {
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyLarge
-                                ?.copyWith(color: Colors.red),
+                                ?.copyWith(color: textColor),
                           ),
                           Text(
                             "Tap to see",
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall
-                                ?.copyWith(color: Colors.red),
+                                ?.copyWith(color: textColor),
                           )
                         ],
                       ),
                     ),
                     Positioned(
-                      top: -10.h,
-                      left: -10.w,
-                      child: Transform.rotate(
-                        angle: 0,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.red,
-                                blurRadius: 6.r,
-                                blurStyle: BlurStyle.outer,
-                              ),
-                            ],
-                            color: Colors.red.shade900,
-                            borderRadius: BorderRadius.circular(14.r),
-                          ),
-                          child: Icon(
-                            Icons.notifications_active,
-                            color: Colors.red,
-                            size: 40.r,
-                          ),
+                      top: -top.h,
+                      left: left != null ? -left!.w : null,
+                      right: right != null ? -right!.w : null,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: borderColor,
+                          borderRadius: BorderRadius.circular(14.r),
+                        ),
+                        child: Icon(
+                          Icons.notifications_active,
+                          color: iconColor,
+                          size: 40.r,
                         ),
                       ),
                     )
@@ -423,266 +464,6 @@ class _UpcomingTodosCard extends StatelessWidget {
               )
             : const SizedBox();
       },
-    );
-  }
-}
-// _UpcomingTodosCard section
-
-// _NewFriendNotificationCard section
-class _NewFriendNotificationCard extends StatelessWidget {
-  const _NewFriendNotificationCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<HomeCubit, HomeState>(
-      builder: (context, state) {
-        return state.newFriendRequestCount != 0
-            ? InkWell(
-                highlightColor: Colors.blue.shade200,
-                splashColor: Colors.blue.shade200,
-                borderRadius: BorderRadius.all(Radius.circular(14.r)),
-                onTap: () {
-                  context.router.push(const ProfileRoute());
-                },
-                child: Stack(
-                  alignment: Alignment.topRight,
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      clipBehavior: Clip.none,
-                      padding: EdgeInsets.all(20.r),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.blue.shade900,
-                          width: 3.r,
-                        ),
-                        borderRadius: BorderRadius.circular(14.r),
-                      ),
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          Text("${state.newFriendRequestCount} friend requests",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(color: Colors.blue)),
-                          Text(
-                            "Tap to see",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: Colors.blue),
-                          )
-                        ],
-                      ),
-                    ),
-                    Positioned(
-                      top: -10.h,
-                      right: -10.w,
-                      child: Transform.rotate(
-                        angle: 0,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.blue,
-                                blurRadius: 6.r,
-                                blurStyle: BlurStyle.outer,
-                              ),
-                            ],
-                            color: Colors.blue.shade900,
-                            borderRadius: BorderRadius.circular(14.r),
-                          ),
-                          child: Icon(
-                            Icons.notifications_active,
-                            color: Colors.blue,
-                            size: 40.r,
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              )
-            : const SizedBox();
-      },
-    );
-  }
-}
-// _NewFriendNotificationCard section
-
-// Main Drawer
-class MainDrawer extends StatelessWidget {
-  const MainDrawer({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      backgroundColor: Colors.white,
-      child: Container(
-        margin: EdgeInsets.symmetric(
-          vertical: MediaQuery.of(context).padding.top.h,
-        ),
-        child: Column(
-          children: [
-            ListTile(
-              leading: Icon(
-                Icons.checklist_rtl_sharp,
-                size: 30.r,
-              ),
-              title: Text(
-                "Todos",
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              onTap: () {
-                context.router.maybePop();
-                context.router.push(const TodoInitialRoute());
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.account_circle_sharp,
-                size: 30.r,
-              ),
-              title: Text(
-                "Profile",
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              onTap: () {
-                context.router.maybePop();
-                context.router.push(const ProfileRoute());
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.group,
-                size: 30.r,
-              ),
-              title: Text(
-                "Social",
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              onTap: () {
-                context.router.maybePop();
-                context.router.push(const SocialRoute());
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.message,
-                size: 30.r,
-              ),
-              title: Text(
-                "Messages",
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              onTap: () {
-                context.router.maybePop();
-                context.router.push(const MessagesInitialRoute());
-              },
-            ),
-            const Spacer(),
-            const _LogOutButton()
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LogOutButton extends StatelessWidget {
-  const _LogOutButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10.w),
-      height: 60.h,
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ButtonStyle(
-          padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-          minimumSize: const WidgetStatePropertyAll(Size.zero),
-          elevation: const WidgetStatePropertyAll(8),
-          shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(14.r),
-              ),
-            ),
-          ),
-          shadowColor: const WidgetStatePropertyAll(Color(0xff3461FD)),
-          backgroundColor: const WidgetStatePropertyAll(Color(0xff3461FD)),
-        ),
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text(
-                  "You are logging out",
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                content: Text("Are you sure?",
-                    style: Theme.of(context).textTheme.bodySmall),
-                actionsAlignment: MainAxisAlignment.spaceEvenly,
-                actions: const [_LogOutDialogButtons()],
-              );
-            },
-          );
-        },
-        child: const Text(
-          "Log out",
-        ),
-      ),
-    );
-  }
-}
-
-class _LogOutDialogButtons extends StatelessWidget {
-  const _LogOutDialogButtons();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _LogOutDialogButton(
-            onPressed: () {
-              context.router.maybePop();
-            },
-            text: "No"),
-        _LogOutDialogButton(
-          onPressed: () {
-            context.read<HomeCubit>().logOut();
-            context.read<HomeCubit>().cancelListener();
-            context.router.maybePop();
-            context.router.replace(const LoginRoute());
-          },
-          text: "Yes",
-        ),
-      ],
-    );
-  }
-}
-
-class _LogOutDialogButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final String text;
-
-  const _LogOutDialogButton({required this.onPressed, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 40.h,
-      width: 60.w,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        child: Text(text),
-      ),
     );
   }
 }

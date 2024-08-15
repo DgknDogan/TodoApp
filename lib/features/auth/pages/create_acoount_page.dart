@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:firebase_demo/routes/app_router.gr.dart';
 import 'package:firebase_demo/utils/custom/custom_elevated_button.dart';
 import 'package:firebase_demo/utils/custom/custom_text_button.dart';
+import 'package:firebase_demo/utils/custom/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -10,7 +12,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../widgets/alternative_auth_buttons.dart';
 import '../widgets/divider.dart';
 import '../widgets/flushbars.dart';
-import '../widgets/form_fields.dart';
 import '../widgets/header_text.dart';
 import '../cubit/register_cubit.dart';
 
@@ -28,7 +29,7 @@ class CreateAccountPage extends HookWidget {
       child: BlocConsumer<RegisterCubit, RegisterState>(
         listener: (context, state) {
           if (state is RegisterSuccess) {
-            successFlushbar(state.message).show(context);
+            customFlushbar(state.message, Colors.green).show(context);
             Future.delayed(
               const Duration(seconds: 2),
               () {
@@ -40,37 +41,35 @@ class CreateAccountPage extends HookWidget {
             );
           }
           if (state is RegisterError) {
-            errorFlushbar(state.message).show(context);
+            customFlushbar(state.message, Colors.red).show(context);
           }
         },
         builder: (context, state) {
           return Scaffold(
             resizeToAvoidBottomInset: false,
             backgroundColor: Colors.white,
-            body: SafeArea(
-              child: Container(
-                width: width,
-                margin: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 80.h),
-                    const HeaderText(
-                        title: "Sign Up",
-                        text:
-                            "It was popularised in the 1960s with the release of Letraset sheetscontaining Lorem Ipsum."),
-                    SizedBox(height: 24.h),
-                    SignUpFormSection(
-                      mailController: mailController,
-                      passwordController: passwordController,
-                    ),
-                    SizedBox(height: 37.h),
-                    CreateAccountSection(
-                      mailController: mailController,
-                      passwordController: passwordController,
-                    ),
-                  ],
-                ),
+            body: Container(
+              width: width,
+              margin: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(height: 80.h),
+                  const HeaderText(
+                      title: "Sign Up",
+                      text:
+                          "It was popularised in the 1960s with the release of Letraset sheetscontaining Lorem Ipsum."),
+                  SizedBox(height: 24.h),
+                  _SignUpFormSection(
+                    mailController: mailController,
+                    passwordController: passwordController,
+                  ),
+                  SizedBox(height: 37.h),
+                  _CreateAccountSection(
+                    mailController: mailController,
+                    passwordController: passwordController,
+                  ),
+                ],
               ),
             ),
           );
@@ -80,21 +79,20 @@ class CreateAccountPage extends HookWidget {
   }
 }
 
-class SignUpFormSection extends StatefulWidget {
+class _SignUpFormSection extends StatefulWidget {
   final TextEditingController mailController;
   final TextEditingController passwordController;
 
-  const SignUpFormSection({
-    super.key,
+  const _SignUpFormSection({
     required this.mailController,
     required this.passwordController,
   });
 
   @override
-  State<SignUpFormSection> createState() => _SignUpFormSectionState();
+  State<_SignUpFormSection> createState() => _SignUpFormSectionState();
 }
 
-class _SignUpFormSectionState extends State<SignUpFormSection> {
+class _SignUpFormSectionState extends State<_SignUpFormSection> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RegisterCubit, RegisterState>(
@@ -118,16 +116,48 @@ class _SignUpFormSectionState extends State<SignUpFormSection> {
                 SizedBox(height: 16.h),
                 const ButtonFormDivider(),
                 SizedBox(height: 16.h),
-                EmailFormField(mailController: widget.mailController),
+                CustomTextField(
+                  textController: widget.mailController,
+                  validator: (email) {
+                    if (!EmailValidator.validate(email!)) {
+                      return "Enter a valid email";
+                    } else {
+                      return null;
+                    }
+                  },
+                  hintText: "Email",
+                ),
                 SizedBox(height: 16.h),
-                PasswordFormField(
-                  passwordController: widget.passwordController,
-                  showHidePassword:
-                      context.read<RegisterCubit>().showHidePassword,
+                CustomTextField(
+                  textController: widget.passwordController,
+                  validator: (password) {
+                    if (password!.isEmpty && password.length < 6) {
+                      return "Enter a valid password";
+                    } else {
+                      return null;
+                    }
+                  },
+                  hintText: "Password",
                   isObsecured: state.isObsecured,
+                  suffixIcon: Padding(
+                    padding: EdgeInsets.only(right: 24.w),
+                    child: GestureDetector(
+                      onTap: () {
+                        context.read<RegisterCubit>().showHidePassword();
+                      },
+                      child: widget.passwordController.text.isNotEmpty
+                          ? Icon(
+                              state.isObsecured
+                                  ? Icons.sunny
+                                  : Icons.nightlight_round_outlined,
+                              color: const Color(0xff7C8BA0),
+                            )
+                          : const SizedBox(),
+                    ),
+                  ),
                 ),
                 SizedBox(height: 12.h),
-                const CheckBoxRow()
+                const _CheckBoxRow()
               ],
             ),
           ),
@@ -137,8 +167,8 @@ class _SignUpFormSectionState extends State<SignUpFormSection> {
   }
 }
 
-class CheckBoxRow extends StatelessWidget {
-  const CheckBoxRow({super.key});
+class _CheckBoxRow extends StatelessWidget {
+  const _CheckBoxRow();
 
   @override
   Widget build(BuildContext context) {
@@ -148,11 +178,6 @@ class CheckBoxRow extends StatelessWidget {
         return Row(
           children: [
             Checkbox(
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-              fillColor: const WidgetStatePropertyAll(Color(0xffF5F9FE)),
-              checkColor: Colors.black,
-              splashRadius: 0,
               isError: state.isError,
               value: state.isChecked,
               onChanged: (value) {
@@ -182,8 +207,10 @@ class CheckBoxRow extends StatelessWidget {
                           icon: const Icon(Icons.close),
                         ),
                         SizedBox(height: 10.h),
-                        const Text(
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet tellus nec ornare hendrerit. Vivamus a arcu tellus. Sed ut ex ut nisi porttitor convallis. Vestibulum efficitur metus id tristique auctor. Mauris mollis orci at leo luctus ornare. Ut elementum sapien non elit congue ullamcorper. Proin nec ex in nisl vestibulum consectetur. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.")
+                        Text(
+                          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet tellus nec ornare hendrerit. Vivamus a arcu tellus. Sed ut ex ut nisi porttitor convallis. Vestibulum efficitur metus id tristique auctor. Mauris mollis orci at leo luctus ornare. Ut elementum sapien non elit congue ullamcorper. Proin nec ex in nisl vestibulum consectetur. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
+                          style: Theme.of(context).textTheme.bodySmall,
+                        )
                       ],
                     ),
                   );
@@ -202,11 +229,10 @@ class CheckBoxRow extends StatelessWidget {
                         style: TextStyle(color: Color(0xff3461FD))),
                   ],
                 ),
-                // softWrap: true,
-                overflow: TextOverflow.clip,
-                style: TextStyle(
-                  fontSize: 12.sp,
-                ),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall!
+                    .copyWith(fontSize: 13),
               ),
             )
           ],
@@ -216,12 +242,11 @@ class CheckBoxRow extends StatelessWidget {
   }
 }
 
-class CreateAccountSection extends StatelessWidget {
+class _CreateAccountSection extends StatelessWidget {
   final TextEditingController mailController;
   final TextEditingController passwordController;
 
-  const CreateAccountSection({
-    super.key,
+  const _CreateAccountSection({
     required this.mailController,
     required this.passwordController,
   });
@@ -234,6 +259,7 @@ class CreateAccountSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CustomElevatedButton(
+                width: double.infinity,
                 height: 60,
                 onPressed: () {
                   context.read<RegisterCubit>().register(
@@ -243,7 +269,7 @@ class CreateAccountSection extends StatelessWidget {
                 },
                 text: "Create Account"),
             SizedBox(height: 16.h),
-            SingInRowText(
+            _SingInRowText(
               mailController: mailController,
               passwordController: passwordController,
             )
@@ -254,9 +280,8 @@ class CreateAccountSection extends StatelessWidget {
   }
 }
 
-class SingInRowText extends StatelessWidget {
-  const SingInRowText({
-    super.key,
+class _SingInRowText extends StatelessWidget {
+  const _SingInRowText({
     required this.mailController,
     required this.passwordController,
   });
@@ -270,19 +295,19 @@ class SingInRowText extends StatelessWidget {
       children: [
         Text(
           "Do you have an account? ",
-          style: TextStyle(
-            color: const Color(0xff61677D),
-            fontSize: 14.sp,
-          ),
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                color: const Color(0xff61677D),
+              ),
         ),
         CustomTextButton(
-            text: "Sign In",
-            onPressed: () {
-              context.router.push(const LoginRoute());
-              context.read<RegisterCubit>().initializeState();
-              mailController.clear();
-              passwordController.clear();
-            })
+          text: "Sign In",
+          onPressed: () {
+            context.router.push(const LoginRoute());
+            context.read<RegisterCubit>().initializeState();
+            mailController.clear();
+            passwordController.clear();
+          },
+        )
       ],
     );
   }

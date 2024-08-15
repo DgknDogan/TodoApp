@@ -66,15 +66,12 @@ class _SplashPageState extends State<SplashPage>
         builder: (context, state) {
           return Scaffold(
             backgroundColor: Colors.white,
-            appBar: AppBar(backgroundColor: Colors.white),
-            body: SafeArea(
-              child: Center(
-                child: AnimatedBuilder(
-                  animation: _animation,
-                  builder: (context, child) {
-                    return CircularProgressIndicator(color: _animation.value);
-                  },
-                ),
+            body: Center(
+              child: AnimatedBuilder(
+                animation: _animation,
+                builder: (context, child) {
+                  return CircularProgressIndicator(color: _animation.value);
+                },
               ),
             ),
           );

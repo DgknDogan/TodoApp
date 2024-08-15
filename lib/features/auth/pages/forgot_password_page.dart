@@ -1,11 +1,13 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:email_validator/email_validator.dart';
+import 'package:firebase_demo/utils/custom/custom_elevated_button.dart';
+import 'package:firebase_demo/utils/custom/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../widgets/flushbars.dart';
-import '../widgets/form_fields.dart';
 import '../widgets/header_text.dart';
 import '../cubit/forget_password_cubit.dart';
 
@@ -21,7 +23,7 @@ class ForgotPasswordPage extends HookWidget {
       child: BlocConsumer<ForgetPasswordCubit, ForgetPasswordState>(
         listener: (context, state) {
           if (state is ForgetPasswordSuccess) {
-            successFlushbar("success").show(context);
+            customFlushbar("success", Colors.green).show(context);
             mailController.clear();
             Future.delayed(
               const Duration(seconds: 2),
@@ -38,26 +40,22 @@ class ForgotPasswordPage extends HookWidget {
               toolbarHeight: 60.h,
             ),
             backgroundColor: Colors.white,
-            body: SafeArea(
-              child: Container(
-                margin: EdgeInsets.symmetric(
-                  horizontal: 24.w,
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(height: 28.h),
-                    const HeaderText(
-                        title: "Forget Password",
-                        text:
-                            "It was popularised in the 1960s with the release of Letraset sheetscontaining Lorem Ipsum."),
-                    SizedBox(height: 32.h),
-                    Form(
-                        key: (state as ForgetPasswordInitial).formKey,
-                        child: EmailFormField(mailController: mailController)),
-                    SizedBox(height: 32.h),
-                    ContinueButton(mailController: mailController)
-                  ],
-                ),
+            body: Container(
+              margin: EdgeInsets.symmetric(
+                horizontal: 24.w,
+              ),
+              child: Column(
+                children: [
+                  SizedBox(height: 28.h),
+                  const HeaderText(
+                      title: "Forget Password",
+                      text:
+                          "It was popularised in the 1960s with the release of Letraset sheetscontaining Lorem Ipsum."),
+                  SizedBox(height: 32.h),
+                  _ForgetEmailForm(mailController: mailController),
+                  SizedBox(height: 32.h),
+                  _ContinueButton(mailController: mailController)
+                ],
               ),
             ),
           );
@@ -67,43 +65,55 @@ class ForgotPasswordPage extends HookWidget {
   }
 }
 
-class ContinueButton extends StatelessWidget {
+class _ForgetEmailForm extends StatelessWidget {
+  const _ForgetEmailForm({
+    required this.mailController,
+  });
+
   final TextEditingController mailController;
 
-  const ContinueButton({super.key, required this.mailController});
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ForgetPasswordCubit, ForgetPasswordState>(
+      builder: (context, state) {
+        return Form(
+          key: (state as ForgetPasswordInitial).formKey,
+          child: CustomTextField(
+            textController: mailController,
+            validator: (email) {
+              if (!EmailValidator.validate(email!)) {
+                return "Enter a valid email";
+              } else {
+                return null;
+              }
+            },
+            hintText: 'Email',
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ContinueButton extends StatelessWidget {
+  final TextEditingController mailController;
+
+  const _ContinueButton({required this.mailController});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 60.h,
       width: double.infinity,
-      child: ElevatedButton(
-        style: ButtonStyle(
-          padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-          minimumSize: const WidgetStatePropertyAll(Size.zero),
-          elevation: const WidgetStatePropertyAll(8),
-          shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(14.r),
-              ),
-            ),
-          ),
-          shadowColor: const WidgetStatePropertyAll(Color(0xff3461FD)),
-          backgroundColor: const WidgetStatePropertyAll(Color(0xff3461FD)),
-        ),
-        onPressed: () => {
+      child: CustomElevatedButton(
+        height: 60,
+        width: double.infinity,
+        onPressed: () {
           context
               .read<ForgetPasswordCubit>()
-              .validateEmail(mailController.text),
+              .validateEmail(mailController.text);
         },
-        child: Text(
-          "Continue",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.sp,
-          ),
-        ),
+        text: 'Continue',
       ),
     );
   }

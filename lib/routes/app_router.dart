@@ -5,58 +5,36 @@ import 'app_router.gr.dart';
 @AutoRouterConfig()
 class AppRouter extends $AppRouter {
   @override
+  RouteType get defaultRouteType => const RouteType.custom(
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+      durationInMilliseconds: 350);
+  @override
   List<AutoRoute> get routes => [
         AutoRoute(page: SplashRoute.page, initial: true),
         AutoRoute(page: CreateAccountRoute.page),
         AutoRoute(page: LoginRoute.page),
         AutoRoute(page: ForgotPasswordRoute.page),
-        CustomRoute(
-          page: SetNameRoute.page,
-          transitionsBuilder: TransitionsBuilders.fadeIn,
-        ),
-        CustomRoute(
-          page: MessagesInitialRoute.page,
-          transitionsBuilder: TransitionsBuilders.fadeIn,
-        ),
-        CustomRoute(
-          page: FriendProfileRoute.page,
-          transitionsBuilder: TransitionsBuilders.fadeIn,
-        ),
-        CustomRoute(
-          page: MessageRoute.page,
-          transitionsBuilder: TransitionsBuilders.fadeIn,
-        ),
-        CustomRoute(
-          page: SocialRoute.page,
-          transitionsBuilder: TransitionsBuilders.fadeIn,
-        ),
-        CustomRoute(
-            page: TodoInitialRoute.page,
-            transitionsBuilder: TransitionsBuilders.fadeIn,
-            children: [
-              CustomRoute(
-                page: TodoDetailsRoute.page,
-                transitionsBuilder: TransitionsBuilders.fadeIn,
-              ),
-              CustomRoute(
-                page: TodoRoute.page,
-                transitionsBuilder: TransitionsBuilders.fadeIn,
-                initial: true,
-              ),
-            ]),
-        CustomRoute(
+        AutoRoute(page: SetNameRoute.page),
+        AutoRoute(page: MessagesInitialRoute.page),
+        AutoRoute(page: FriendProfileRoute.page),
+        AutoRoute(page: MessageRoute.page),
+        AutoRoute(page: SocialRoute.page),
+        AutoRoute(page: AppSettingsRoute.page),
+        AutoRoute(page: TodoInitialRoute.page, children: [
+          AutoRoute(page: TodoDetailsRoute.page),
+          AutoRoute(
+            page: TodoRoute.page,
+            initial: true,
+          ),
+        ]),
+        AutoRoute(
           page: InitialRoute.page,
-          transitionsBuilder: TransitionsBuilders.fadeIn,
           children: [
-            CustomRoute(
+            AutoRoute(
               page: HomeRoute.page,
-              transitionsBuilder: TransitionsBuilders.fadeIn,
               initial: true,
             ),
-            CustomRoute(
-              page: ProfileRoute.page,
-              transitionsBuilder: TransitionsBuilders.fadeIn,
-            ),
+            AutoRoute(page: ProfileRoute.page),
           ],
         )
       ];

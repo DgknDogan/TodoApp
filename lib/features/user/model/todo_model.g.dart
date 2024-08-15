@@ -13,10 +13,10 @@ TodoModel _$TodoModelFromJson(Map<String, dynamic> json) => TodoModel(
       isFinished: json['isFinished'] as bool?,
       startDate: json['startDate'] == null
           ? null
-          : (json['startDate'] as Timestamp).toDate(),
+          : DateTime.parse(json['startDate'] as String),
       endDate: json['endDate'] == null
           ? null
-          : (json['endDate'] as Timestamp).toDate(),
+          : DateTime.parse(json['endDate'] as String),
       priority: $enumDecodeNullable(_$PriorityEnumEnumMap, json['priority']),
     );
 

@@ -26,10 +26,9 @@ class FacebookButton extends StatelessWidget {
               SizedBox(width: 16.w),
               Text(
                 "Facebook",
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: const Color(0xff61677D),
-                ),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: const Color(0xff61677D),
+                    ),
               ),
             ],
           ),
@@ -76,10 +75,10 @@ class GoogleButton extends StatelessWidget {
                 SizedBox(width: 16.w),
                 Text(
                   "Google",
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    color: const Color(0xff61677D),
-                  ),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .copyWith(color: const Color(0xff61677D)),
                 ),
               ],
             ),

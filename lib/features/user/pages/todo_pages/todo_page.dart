@@ -1,17 +1,19 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_demo/utils/custom/custom_appbar.dart';
+import 'package:firebase_demo/utils/custom/custom_text_field.dart';
+import 'package:firebase_demo/utils/extension/datetime_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-import '../../../routes/app_router.gr.dart';
-import '../cubit/home_cubit.dart';
-import '../cubit/todo_cubit.dart';
-import '../model/enum/priority_enum.dart';
-import '../model/enum/todo_category_enum.dart';
-import '../model/todo_model.dart';
+import '../../../../routes/app_router.gr.dart';
+import '../../cubit/home_cubit.dart';
+import '../../cubit/todo_cubit.dart';
+import '../../model/enum/priority_enum.dart';
+import '../../model/enum/todo_category_enum.dart';
+import '../../model/todo_model.dart';
 
 final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -62,121 +64,16 @@ class _TodoPageState extends State<TodoPage> {
             actions: const [_SortDropDown()],
           ),
           body: SingleChildScrollView(
-            child: SafeArea(
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 24.w),
-                child: const Column(
-                  children: [
-                    _ActiveTodos(),
-                    _FinishedTodos(),
-                  ],
-                ),
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 24.w),
+              child: const Column(
+                children: [
+                  _ActiveTodos(),
+                  _FinishedTodos(),
+                ],
               ),
             ),
           ),
-        );
-      },
-    );
-  }
-}
-
-class _FinishedTodos extends StatelessWidget {
-  const _FinishedTodos();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<TodoCubit, TodoState>(
-      builder: (context, state) {
-        return state.finishedTodoList.isNotEmpty
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 20.h),
-                  Text(
-                    "Finished Todos",
-                    style: TextStyle(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  ...state.finishedTodoList.map(
-                    (finishedTodo) {
-                      return Column(
-                        children: [
-                          SizedBox(height: 20.h),
-                          _TodoCard(todo: finishedTodo),
-                        ],
-                      );
-                    },
-                  )
-                ],
-              )
-            : const SizedBox();
-      },
-    );
-  }
-}
-
-class _ActiveTodos extends StatelessWidget {
-  const _ActiveTodos();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<TodoCubit, TodoState>(
-      builder: (context, state) {
-        return state.todoList.isNotEmpty
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 20.h),
-                  Text(
-                    "Active Todos",
-                    style: TextStyle(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  ...state.todoList.map(
-                    (todo) {
-                      return Column(
-                        children: [
-                          SizedBox(height: 20.h),
-                          _TodoCard(todo: todo),
-                        ],
-                      );
-                    },
-                  ),
-                ],
-              )
-            : const SizedBox();
-      },
-    );
-  }
-}
-
-class _SortDropDown extends StatelessWidget {
-  const _SortDropDown();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<TodoCubit, TodoState>(
-      builder: (context, state) {
-        return DropdownButton(
-          value: state.dropdownValue,
-          hint: const Text("Sort"),
-          items: [
-            DropdownMenuItem(
-              value: 1,
-              onTap: () => context.read<TodoCubit>().sortByFinishTime(),
-              child: const Text("Sort by date"),
-            ),
-            DropdownMenuItem(
-              value: 2,
-              onTap: () => context.read<TodoCubit>().sortByPriority(),
-              child: const Text("Sort by priority"),
-            ),
-          ],
-          onChanged: (value) => context.read<TodoCubit>().changeDropDown(value),
         );
       },
     );
@@ -216,7 +113,7 @@ class _TodoDialog extends StatelessWidget {
                       ),
                     ),
                     state.day != null
-                        ? Text(DateFormat.MMMEd().format(state.day!))
+                        ? Text(state.day!.mmed)
                         : const SizedBox(),
                     state.priority != null
                         ? _PriorityCard(priority: state.priority!)
@@ -277,6 +174,140 @@ class _TodoDialog extends StatelessWidget {
             ),
           ),
         );
+      },
+    );
+  }
+}
+
+class _NextButton extends StatelessWidget {
+  const _NextButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<TodoCubit, TodoState>(
+      builder: (context, state) {
+        return IconButton(
+          onPressed: !context.read<TodoCubit>().isAbleToAddNewTodo()
+              ? null
+              : () {
+                  context.read<TodoCubit>().addNewTodo(
+                      getUpcomingTodos:
+                          context.read<HomeCubit>().getUpcomingTodos);
+                  context.read<TodoCubit>().resetState();
+                  context.router.maybePop();
+                },
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          style: const ButtonStyle(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          icon: const Icon(
+            Icons.arrow_forward,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SortDropDown extends StatelessWidget {
+  const _SortDropDown();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<TodoCubit, TodoState>(
+      builder: (context, state) {
+        return DropdownButton(
+          value: state.dropdownValue,
+          hint: const Text("Sort"),
+          items: [
+            DropdownMenuItem(
+              value: 1,
+              onTap: () => context.read<TodoCubit>().sortByFinishTime(),
+              child: const Text("Sort by date"),
+            ),
+            DropdownMenuItem(
+              value: 2,
+              onTap: () => context.read<TodoCubit>().sortByPriority(),
+              child: const Text("Sort by priority"),
+            ),
+          ],
+          onChanged: (value) => context.read<TodoCubit>().changeDropDown(value),
+        );
+      },
+    );
+  }
+}
+
+class _ActiveTodos extends StatelessWidget {
+  const _ActiveTodos();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<TodoCubit, TodoState>(
+      builder: (context, state) {
+        return state.todoList.isNotEmpty
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 20.h),
+                  Text(
+                    "Active Todos",
+                    style: TextStyle(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  ...state.todoList.map(
+                    (todo) {
+                      return Column(
+                        children: [
+                          SizedBox(height: 20.h),
+                          _TodoCard(todo: todo),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              )
+            : const SizedBox();
+      },
+    );
+  }
+}
+
+class _FinishedTodos extends StatelessWidget {
+  const _FinishedTodos();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<TodoCubit, TodoState>(
+      builder: (context, state) {
+        return state.finishedTodoList.isNotEmpty
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 20.h),
+                  Text(
+                    "Finished Todos",
+                    style: TextStyle(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  ...state.finishedTodoList.map(
+                    (finishedTodo) {
+                      return Column(
+                        children: [
+                          SizedBox(height: 20.h),
+                          _TodoCard(todo: finishedTodo),
+                        ],
+                      );
+                    },
+                  )
+                ],
+              )
+            : const SizedBox();
       },
     );
   }
@@ -440,37 +471,6 @@ class _PriorityPicker extends StatelessWidget {
   }
 }
 
-class _NextButton extends StatelessWidget {
-  const _NextButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<TodoCubit, TodoState>(
-      builder: (context, state) {
-        return IconButton(
-          onPressed: !context.read<TodoCubit>().isAbleToAddNewTodo()
-              ? null
-              : () {
-                  context.read<TodoCubit>().addNewTodo(
-                      getUpcomingTodos:
-                          context.read<HomeCubit>().getUpcomingTodos);
-                  context.read<TodoCubit>().resetState();
-                  context.router.maybePop();
-                },
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-          style: const ButtonStyle(
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          icon: const Icon(
-            Icons.arrow_forward,
-          ),
-        );
-      },
-    );
-  }
-}
-
 class _TodoTitleForm extends StatefulWidget {
   const _TodoTitleForm();
 
@@ -479,7 +479,13 @@ class _TodoTitleForm extends StatefulWidget {
 }
 
 class __TodoTitleFormState extends State<_TodoTitleForm> {
-  final controller = TextEditingController();
+  late TextEditingController controller;
+
+  @override
+  void initState() {
+    controller = TextEditingController();
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -493,7 +499,8 @@ class __TodoTitleFormState extends State<_TodoTitleForm> {
       builder: (context, state) {
         return Form(
           key: _formKey,
-          child: TextFormField(
+          child: CustomTextField(
+            textController: controller,
             validator: (value) {
               if (value!.length < 6) {
                 return "Title must be longer!";
@@ -501,27 +508,13 @@ class __TodoTitleFormState extends State<_TodoTitleForm> {
                 return null;
               }
             },
+            hintText: "Title",
             onChanged: (value) {
               setState(() {});
               if (_formKey.currentState!.validate()) {
                 context.read<TodoCubit>().setTitle(controller.text);
               }
             },
-            controller: controller,
-            decoration: InputDecoration(
-              focusedBorder: OutlineInputBorder(
-                borderSide: controller.text.length < 6
-                    ? const BorderSide()
-                    : const BorderSide(color: Colors.green),
-                borderRadius: BorderRadius.circular(10.r),
-              ),
-              hintText: "Title",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(10.r),
-                ),
-              ),
-            ),
           ),
         );
       },
@@ -654,7 +647,7 @@ class _TodoDescription extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            "Ends at: ${DateFormat.MMMEd().format(endDate)}",
+            "Ends at: ${endDate.mmed}",
             style: TextStyle(
               color: Colors.white,
               fontSize: 16.sp,

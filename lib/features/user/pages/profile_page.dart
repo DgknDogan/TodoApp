@@ -1,5 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_demo/utils/custom/custom_appbar.dart';
+import 'package:firebase_demo/utils/custom/custom_suffix_widget.dart';
+import 'package:firebase_demo/utils/custom/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -56,51 +58,127 @@ class _ProfilePageState extends State<ProfilePage> {
                 context.read<ProfileCubit>().cancelListener();
                 context.router.maybePop();
               },
-              leadingIcon: const Icon(Icons.arrow_back),
             ),
-            body: SafeArea(
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Column(
-                  children: [
-                    SizedBox(height: 20.h),
-                    Form(
-                        key: _nameFormKey,
-                        child: _ProfileTextField(
-                          controller: nameController,
-                          text: "Name",
-                          onPressed: context.read<ProfileCubit>().saveName,
-                          hintText: state.name,
-                          formKey: _nameFormKey,
-                        )),
-                    SizedBox(height: 20.h),
-                    Form(
-                      key: _surnameFormKey,
-                      child: _ProfileTextField(
+            body: Container(
+              margin: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Column(
+                children: [
+                  SizedBox(height: 20.h),
+                  Form(
+                    onChanged: () {
+                      setState(() {});
+                    },
+                    key: _nameFormKey,
+                    child: CustomTextField(
+                      textController: nameController,
+                      validator: (name) {
+                        if (name!.length < 2) {
+                          return "Please enter a valid name";
+                        } else {
+                          return null;
+                        }
+                      },
+                      hintText: state.name.isEmpty ? "Name" : state.name,
+                      suffixIcon: CustomSuffixWidget(
+                        isTextFieldChanged:
+                            context.watch<ProfileCubit>().isTextFieldChanged(
+                                  nameController.text,
+                                  state.name,
+                                ),
+                        controller: nameController,
+                        text: nameController.text,
+                        onPressed: () {
+                          if (_nameFormKey.currentState!.validate()) {
+                            context
+                                .read<ProfileCubit>()
+                                .saveName(nameController.text);
+                          }
+                        },
+                        hintText: state.name,
+                        formKey: _nameFormKey,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  Form(
+                    onChanged: () {
+                      setState(() {});
+                    },
+                    key: _surnameFormKey,
+                    child: CustomTextField(
+                      textController: surnameController,
+                      validator: (surname) {
+                        if (surname!.length < 2) {
+                          return "Please enter a valid surname";
+                        } else {
+                          return null;
+                        }
+                      },
+                      hintText:
+                          state.surname.isEmpty ? "Surname" : state.surname,
+                      suffixIcon: CustomSuffixWidget(
+                        isTextFieldChanged:
+                            context.watch<ProfileCubit>().isTextFieldChanged(
+                                  surnameController.text,
+                                  state.surname,
+                                ),
                         controller: surnameController,
-                        text: "Surname",
-                        onPressed: context.read<ProfileCubit>().saveSurname,
+                        text: surnameController.text,
+                        onPressed: () {
+                          if (_surnameFormKey.currentState!.validate()) {
+                            context
+                                .read<ProfileCubit>()
+                                .saveSurname(surnameController.text);
+                          }
+                        },
                         hintText: state.surname,
                         formKey: _surnameFormKey,
                       ),
                     ),
-                    SizedBox(height: 20.h),
-                    Form(
-                      key: _phoneFormKey,
-                      child: _ProfileTextField(
+                  ),
+                  SizedBox(height: 20.h),
+                  Form(
+                    onChanged: () {
+                      setState(() {});
+                    },
+                    key: _phoneFormKey,
+                    child: CustomTextField(
+                      textController: phoneController,
+                      validator: (phoneNumber) {
+                        if (phoneNumber!.length < 2) {
+                          return "Please enter a valid phone number";
+                        } else {
+                          return null;
+                        }
+                      },
+                      hintText: state.phoneNumber.isEmpty
+                          ? "Phone"
+                          : state.phoneNumber,
+                      suffixIcon: CustomSuffixWidget(
+                        isTextFieldChanged:
+                            context.watch<ProfileCubit>().isTextFieldChanged(
+                                  phoneController.text,
+                                  state.phoneNumber,
+                                ),
                         controller: phoneController,
-                        text: "Phone",
-                        onPressed: context.read<ProfileCubit>().savePhoneNumber,
+                        text: phoneController.text,
+                        onPressed: () {
+                          if (_phoneFormKey.currentState!.validate()) {
+                            context
+                                .read<ProfileCubit>()
+                                .savePhoneNumber(phoneController.text);
+                          }
+                        },
                         hintText: state.phoneNumber,
                         formKey: _phoneFormKey,
                       ),
                     ),
-                    SizedBox(height: 20.h),
-                    const Divider(),
-                    SizedBox(height: 20.h),
-                    const _FriendsSection(),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 20.h),
+                  const Divider(),
+                  SizedBox(height: 20.h),
+                  const _FriendsSection(),
+                ],
               ),
             ),
           );
@@ -233,88 +311,6 @@ class _CustomIconButton extends StatelessWidget {
       icon: icon,
       iconSize: 40.r,
       color: color,
-    );
-  }
-}
-
-class _ProfileTextField extends StatefulWidget {
-  final TextEditingController controller;
-  final String text;
-  final Function(String) onPressed;
-  final String hintText;
-  final GlobalKey<FormState> formKey;
-
-  const _ProfileTextField({
-    required this.controller,
-    required this.text,
-    required this.onPressed,
-    required this.hintText,
-    required this.formKey,
-  });
-
-  @override
-  State<_ProfileTextField> createState() => _ProfileTextFieldState();
-}
-
-class _ProfileTextFieldState extends State<_ProfileTextField> {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ProfileCubit, ProfileState>(
-      builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.text,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey.shade600,
-                  ),
-            ),
-            TextFormField(
-              controller: widget.controller,
-              validator: (value) {
-                if (value!.length < 2) {
-                  return "Please enter a valid name";
-                } else {
-                  return null;
-                }
-              },
-              onChanged: (value) {
-                setState(() {});
-              },
-              decoration: InputDecoration(
-                suffixIcon: context
-                        .watch<ProfileCubit>()
-                        .isTextFieldChanged(widget.controller, widget.hintText)
-                    ? IconButton(
-                        onPressed: () {
-                          if (widget.formKey.currentState!.validate()) {
-                            widget.onPressed(widget.controller.text);
-                            widget.controller.clear();
-                          }
-                        },
-                        icon: const Icon(
-                          Icons.check_box,
-                          color: Colors.green,
-                        ),
-                      )
-                    : const SizedBox(),
-                hintText:
-                    widget.hintText.isEmpty ? widget.text : widget.hintText,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(14.r),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Color(0xff3461FD)),
-                  borderRadius: BorderRadius.circular(14.r),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }
