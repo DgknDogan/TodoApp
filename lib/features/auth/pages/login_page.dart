@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_demo/features/auth/widgets/flushbars.dart';
+import 'package:firebase_demo/utils/custom/custom_appbar.dart';
 import 'package:firebase_demo/utils/custom/custom_elevated_button.dart';
 import 'package:firebase_demo/utils/custom/custom_text_button.dart';
 import 'package:flutter/material.dart';
@@ -40,9 +41,9 @@ class LoginPage extends HookWidget {
               const Duration(milliseconds: 2000),
               () {
                 if (auth.currentUser?.displayName != null) {
-                  context.router.push(const HomeRoute());
+                  context.router.replace(const InitialRoute());
                 } else {
-                  context.router.push(const SetNameRoute());
+                  context.router.replace(const SetNameRoute());
                 }
                 context.read<LoginCubit>().initializeState();
                 mailController.clear();
@@ -53,7 +54,9 @@ class LoginPage extends HookWidget {
         },
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: Colors.white,
+            appBar: const CustomAppbar(
+              leadingIcon: SizedBox(),
+            ),
             resizeToAvoidBottomInset: false,
             body: Container(
               margin: EdgeInsets.symmetric(horizontal: 24.w),
@@ -61,7 +64,6 @@ class LoginPage extends HookWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: 80.h),
                   const HeaderText(
                     title: "Sign In",
                     text:
@@ -72,7 +74,7 @@ class LoginPage extends HookWidget {
                     mailController: mailController,
                     passwordController: passwordController,
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 10.h),
                   _ForgetPasswordText(
                     mailController: mailController,
                     passwordController: passwordController,
@@ -82,7 +84,7 @@ class LoginPage extends HookWidget {
                     mailController: mailController,
                     passwordController: passwordController,
                   ),
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 16.h),
                   _SignUpTextRow(
                     mailController: mailController,
                     passwordController: passwordController,
@@ -257,15 +259,16 @@ class _LoginSection extends StatelessWidget {
         return Column(
           children: [
             CustomElevatedButton(
-                width: double.infinity,
-                height: 60,
-                onPressed: () {
-                  context.read<LoginCubit>().login(
-                        email: mailController.text,
-                        password: passwordController.text,
-                      );
-                },
-                text: "Log In"),
+              width: double.infinity,
+              height: 60,
+              onPressed: () {
+                context.read<LoginCubit>().login(
+                      email: mailController.text,
+                      password: passwordController.text,
+                    );
+              },
+              text: "Log In",
+            ),
           ],
         );
       },
@@ -296,7 +299,12 @@ class _SignUpTextRow extends StatelessWidget {
         CustomTextButton(
           text: "Sign Up",
           onPressed: () {
-            context.router.replace(const CreateAccountRoute());
+            if (!Navigator.canPop(context)) {
+              context.router.replace(const CreateAccountRoute());
+            } else {
+              context.router.maybePop();
+            }
+
             mailController.clear();
             passwordController.clear();
           },

@@ -1,13 +1,12 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_demo/features/auth/widgets/flushbars.dart';
-import 'package:firebase_demo/utils/custom/custom_appbar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../routes/app_router.gr.dart';
+import '../../../utils/custom/custom_appbar.dart';
+import '../../auth/widgets/flushbars.dart';
 import '../cubit/friend_profile_cubit.dart';
 import '../../auth/models/user_model.dart';
 
@@ -30,7 +29,6 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
       child: BlocBuilder<FriendProfileCubit, FriendProfileState>(
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: Colors.white,
             floatingActionButton: state.isFriendWithUser!
                 ? FloatingActionButton(
                     backgroundColor: Colors.blue,
@@ -44,8 +42,6 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
                   )
                 : const SizedBox(),
             appBar: CustomAppbar(
-              systemOverlayStyle: const SystemUiOverlayStyle(
-                  systemNavigationBarColor: Colors.white),
               title: "${widget.friend.name}'s profile",
               centerTitle: false,
               leadingOnPressed: () {

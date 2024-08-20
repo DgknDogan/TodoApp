@@ -50,7 +50,6 @@ class _ProfilePageState extends State<ProfilePage> {
       child: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: Colors.white,
             appBar: CustomAppbar(
               title: "Profile",
               centerTitle: false,
@@ -92,6 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             context
                                 .read<ProfileCubit>()
                                 .saveName(nameController.text);
+                            nameController.clear();
                           }
                         },
                         hintText: state.name,
@@ -129,6 +129,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             context
                                 .read<ProfileCubit>()
                                 .saveSurname(surnameController.text);
+                            surnameController.clear();
                           }
                         },
                         hintText: state.surname,
@@ -167,6 +168,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             context
                                 .read<ProfileCubit>()
                                 .savePhoneNumber(phoneController.text);
+                            phoneController.clear();
                           }
                         },
                         hintText: state.phoneNumber,

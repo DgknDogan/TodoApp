@@ -85,7 +85,14 @@ class RegisterCubit extends Cubit<RegisterState> {
           password: password,
         );
 
-        final UserModel newUser = UserModel(email: email, points: 0);
+        final UserModel newUser = UserModel(
+          email: email,
+          points: 0,
+          friendsList: const [],
+          todoList: const [],
+          sentFriendRequestList: const [],
+          incomingFriendRequestList: const [],
+        );
 
         final users = _firestore.collection("User").doc(createdUser.user!.uid);
 

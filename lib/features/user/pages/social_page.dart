@@ -30,7 +30,6 @@ class SocialPage extends StatelessWidget {
                 context.router.maybePop();
               },
             ),
-            backgroundColor: Colors.white,
             body: Container(
               margin: EdgeInsets.symmetric(horizontal: 24.w),
               child: Column(

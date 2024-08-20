@@ -3,16 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-  final bool centerTitle;
+  final String? title;
+  final bool? centerTitle;
   final VoidCallback? leadingOnPressed;
   final Widget? leadingIcon;
   final List<Widget>? actions;
   final SystemUiOverlayStyle? systemOverlayStyle;
   const CustomAppbar({
     super.key,
-    required this.title,
-    required this.centerTitle,
+    this.title,
+    this.centerTitle,
     this.leadingOnPressed,
     this.leadingIcon,
     this.actions,
@@ -23,7 +23,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       systemOverlayStyle: systemOverlayStyle,
-      title: Text(title),
+      title: Text(title ?? ""),
       centerTitle: centerTitle,
       leading: leadingIcon == null
           ? IconButton(
@@ -35,19 +35,6 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
               icon: leadingIcon!,
             ),
       actions: actions,
-      flexibleSpace: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: <Color>[
-              Color(0xff3461FD),
-              Color(0xAA3461FD),
-              Color(0x003461FD),
-            ],
-          ),
-        ),
-      ),
     );
   }
 

@@ -13,7 +13,7 @@ class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       child: Container(
         margin: EdgeInsets.symmetric(
           vertical: MediaQuery.of(context).padding.top.h,
@@ -152,7 +152,7 @@ class _LogOutDialogButtons extends StatelessWidget {
             context.read<HomeCubit>().logOut();
             context.read<HomeCubit>().cancelListener();
             context.router.maybePop();
-            context.router.replace(const LoginRoute());
+            context.router.replaceAll([const LoginRoute()]);
           },
           text: "Yes",
         ),

@@ -43,9 +43,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
         validator: widget.validator,
         obscuringCharacter: "●",
         obscureText: widget.isObsecured ?? false,
-        cursorErrorColor: Colors.black,
-        cursorColor: Colors.black,
-        style: const TextStyle(color: Colors.black),
+        cursorErrorColor: Colors.red,
+        cursorColor: Theme.of(context).colorScheme.outline,
         decoration: InputDecoration(
           suffixIcon: widget.suffixIcon,
           hintText: widget.hintText,

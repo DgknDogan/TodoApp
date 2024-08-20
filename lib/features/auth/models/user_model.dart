@@ -13,9 +13,8 @@ class UserModel extends Equatable {
   final bool? isRemembered;
   final bool? isActive;
 
-  final List<TodoModel>? todoList;
   final int points;
-
+  final List<TodoModel>? todoList;
   final List<dynamic>? incomingFriendRequestList;
   final List<dynamic>? sentFriendRequestList;
   final List<dynamic>? friendsList;

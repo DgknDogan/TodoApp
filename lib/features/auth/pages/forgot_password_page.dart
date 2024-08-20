@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_demo/utils/custom/custom_appbar.dart';
 import 'package:firebase_demo/utils/custom/custom_elevated_button.dart';
 import 'package:firebase_demo/utils/custom/custom_text_field.dart';
 import 'package:flutter/material.dart';
@@ -35,18 +36,18 @@ class ForgotPasswordPage extends HookWidget {
         },
         builder: (context, state) {
           return Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.white,
-              toolbarHeight: 60.h,
+            appBar: CustomAppbar(
+              leadingOnPressed: () {
+                context.router.maybePop();
+              },
             ),
-            backgroundColor: Colors.white,
             body: Container(
               margin: EdgeInsets.symmetric(
                 horizontal: 24.w,
               ),
               child: Column(
                 children: [
-                  SizedBox(height: 28.h),
+                  SizedBox(height: 8.h),
                   const HeaderText(
                       title: "Forget Password",
                       text:

@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_demo/features/user/cubit/app_settings_cubit.dart';
+import 'package:firebase_demo/features/user/cubit/home_cubit.dart';
 import 'package:firebase_demo/utils/custom/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,11 +21,14 @@ class AppSettingsPage extends StatelessWidget {
         },
       ),
       body: BlocProvider(
-        create: (context) => AppSettingsCubit(),
+        create: (context) => AppSettingsCubit(cubit: context.read<HomeCubit>()),
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: 24.w),
           child: Column(
-            children: [SizedBox(height: 20.h), const _ChangeThemeRow()],
+            children: [
+              SizedBox(height: 20.h),
+              const _ChangeThemeRow(),
+            ],
           ),
         ),
       ),
@@ -39,21 +43,25 @@ class _ChangeThemeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AppSettingsCubit, AppSettingsState>(
       builder: (context, state) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "Change Theme",
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            Switch(
-              value: state.switchValue,
-              onChanged: (value) {
-                context.read<AppSettingsCubit>().changeSwitchValue(value);
-              },
-            )
-          ],
-        );
+        return !state.isPageLoading
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Change Theme",
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  Switch(
+                    activeTrackColor: Colors.white,
+                    thumbColor: const WidgetStatePropertyAll(Colors.black),
+                    value: state.switchValue,
+                    onChanged: (value) {
+                      context.read<AppSettingsCubit>().changeSwitchValue(value);
+                    },
+                  )
+                ],
+              )
+            : const SizedBox();
       },
     );
   }

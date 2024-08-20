@@ -32,7 +32,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       ..getNewMessageNotifiaction()
       ..getUserName()
       ..getTopUsers()
-      ..initializeChartData()
+      ..getChartData()
       ..getUpcomingTodos()
       ..getFriendRequestCount()
       ..countProfileData();
@@ -65,7 +65,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return Scaffold(
           key: _scaffoldKey,
           drawer: const MainDrawer(),
-          backgroundColor: Colors.white,
           appBar: CustomAppbar(
             centerTitle: true,
             title: "Welcome ${state.userName ?? ""}",
@@ -74,61 +73,66 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             },
             leadingIcon: const Icon(Icons.menu),
           ),
-          body: RefreshIndicator(
-            onRefresh: () async {
-              return Future<void>.delayed(
-                const Duration(seconds: 1),
-                () {
-                  context.read<HomeCubit>().getTopUsers();
-                  context.read<HomeCubit>().getUserName();
-                  context.read<HomeCubit>().getFriendRequestCount();
-                },
-              );
-            },
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Column(
-                  children: [
-                    SizedBox(height: 24.h),
-                    const _TodoLeaderboard(),
-                    SizedBox(height: 24.h),
-                    const _CompleteProfileCard(),
-                    SizedBox(height: 24.h),
-                    _NotificationCard(
-                      splashColor: Colors.red.shade200,
-                      onPressed: () {
-                        context.router.push(const TodoInitialRoute());
-                      },
-                      mainText: "${state.upcomingTodos.length} upcoming todos",
-                      ifCheck: state.upcomingTodos.isNotEmpty,
-                      textColor: Colors.red,
-                      borderColor: Colors.red.shade900,
-                      iconColor: Colors.red,
-                      alignment: Alignment.topLeft,
-                      top: 10,
-                      left: 10,
-                      right: null,
-                    ),
-                    SizedBox(height: 24.h),
-                    _NotificationCard(
-                      splashColor: Colors.blue.shade200,
-                      onPressed: () {
-                        context.router.push(const ProfileRoute());
-                      },
-                      mainText:
-                          "${state.newFriendRequestCount} friend requests",
-                      ifCheck: state.newFriendRequestCount != 0,
-                      textColor: Colors.blue,
-                      borderColor: Colors.blue.shade900,
-                      iconColor: Colors.blue,
-                      alignment: Alignment.topRight,
-                      top: 10,
-                      left: null,
-                      right: 10,
-                    )
-                  ],
+          body: PopScope(
+            canPop: false,
+            child: RefreshIndicator(
+              color: Theme.of(context).colorScheme.outline,
+              onRefresh: () async {
+                return Future<void>.delayed(
+                  const Duration(seconds: 1),
+                  () {
+                    context.read<HomeCubit>().getTopUsers();
+                    context.read<HomeCubit>().getUserName();
+                    context.read<HomeCubit>().getFriendRequestCount();
+                  },
+                );
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 24.h),
+                      const _TodoLeaderboard(),
+                      SizedBox(height: 24.h),
+                      const _CompleteProfileCard(),
+                      SizedBox(height: 24.h),
+                      _NotificationCard(
+                        splashColor: Colors.red.shade200,
+                        onPressed: () {
+                          context.router.push(const TodoInitialRoute());
+                        },
+                        mainText:
+                            "${state.upcomingTodos.length} upcoming todos",
+                        ifCheck: state.upcomingTodos.isNotEmpty,
+                        textColor: Colors.red,
+                        borderColor: Colors.red.shade900,
+                        iconColor: Colors.red,
+                        alignment: Alignment.topLeft,
+                        top: 10,
+                        left: 10,
+                        right: null,
+                      ),
+                      SizedBox(height: 24.h),
+                      _NotificationCard(
+                        splashColor: Colors.blue.shade200,
+                        onPressed: () {
+                          context.router.push(const ProfileRoute());
+                        },
+                        mainText:
+                            "${state.newFriendRequestCount} friend requests",
+                        ifCheck: state.newFriendRequestCount != 0,
+                        textColor: Colors.blue,
+                        borderColor: Colors.blue.shade900,
+                        iconColor: Colors.blue,
+                        alignment: Alignment.topRight,
+                        top: 10,
+                        left: null,
+                        right: 10,
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -159,7 +163,7 @@ class _TodoLeaderboard extends StatelessWidget {
                 border: Border(
                   top: BorderSide(
                     width: 2.w,
-                    color: Colors.black,
+                    color: Theme.of(context).colorScheme.outline,
                   ),
                 ),
               ),
@@ -194,15 +198,28 @@ class _TodoLeaderboard extends StatelessWidget {
               top: -12.h,
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 10.w),
-                decoration: const BoxDecoration(color: Colors.white),
+                decoration: BoxDecoration(
+                    color: Theme.of(context).scaffoldBackgroundColor),
                 child: Row(
                   children: [
-                    SvgPicture.asset("assets/Svg/crown.svg"),
+                    SvgPicture.asset(
+                      "assets/Svg/crown.svg",
+                      colorFilter: ColorFilter.mode(
+                        Theme.of(context).colorScheme.outline,
+                        BlendMode.srcATop,
+                      ),
+                    ),
                     Text(
                       "Leaderboard",
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
-                    SvgPicture.asset("assets/Svg/crown.svg"),
+                    SvgPicture.asset(
+                      "assets/Svg/crown.svg",
+                      colorFilter: ColorFilter.mode(
+                        Theme.of(context).colorScheme.outline,
+                        BlendMode.srcATop,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -242,17 +259,23 @@ class _TopUser extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall,
               )
             : const SizedBox(),
+        SizedBox(height: 8.h),
         Container(
           width: 75.w,
           height: containerHeight.h,
-          decoration: const BoxDecoration(color: Colors.black),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(15.r),
+              topRight: Radius.circular(15.r),
+              bottomLeft: Radius.circular(5.r),
+              bottomRight: Radius.circular(5.r),
+            ),
+          ),
           child: Center(
             child: Text(
               userPlace.toString(),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: color),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
         )
@@ -273,7 +296,7 @@ class _CompleteProfileCard extends StatefulWidget {
 class _CompleteProfileCardState extends State<_CompleteProfileCard> {
   @override
   void initState() {
-    context.read<HomeCubit>().initializeChartData();
+    context.read<HomeCubit>().getChartData();
     context.read<HomeCubit>().countProfileData();
     super.initState();
   }
@@ -292,7 +315,10 @@ class _CompleteProfileCardState extends State<_CompleteProfileCard> {
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(14.r),
-                        border: Border.all(width: 2.w),
+                        border: Border.all(
+                          width: 2.w,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                       ),
                       width: double.infinity,
                       height: 200.h,

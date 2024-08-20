@@ -100,7 +100,6 @@ class _TaskDeatilRow extends StatelessWidget {
           children: [
             Image.asset(
               assetPath,
-              color: Colors.black,
               scale: 0.75.r,
             ),
             SizedBox(width: 10.w),
@@ -221,17 +220,18 @@ class _DialogButtonsState extends State<_DialogButtons> {
               context.router.maybePop();
             }),
         CustomElevatedButton(
-            height: 30,
-            width: 70,
-            onPressed: () {
-              widget.widget.cubit.setCurrentTitle(
-                widget.widget.todo,
-                widget.controller.text,
-              );
-              widget.controller.clear();
-              context.router.maybePop();
-            },
-            text: "Change"),
+          height: 30,
+          width: 70,
+          onPressed: () {
+            widget.widget.cubit.setCurrentTitle(
+              widget.widget.todo,
+              widget.controller.text,
+            );
+            widget.controller.clear();
+            context.router.maybePop();
+          },
+          text: "Change",
+        ),
       ],
     );
   }

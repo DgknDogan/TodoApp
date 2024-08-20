@@ -16,22 +16,9 @@ class FacebookButton extends StatelessWidget {
           color: const Color(0xffF5F9FE),
           borderRadius: BorderRadius.circular(14.r),
         ),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          width: 131.w,
-          height: 24.h,
-          child: Row(
-            children: [
-              Image.asset("assets/_Facebook.png"),
-              SizedBox(width: 16.w),
-              Text(
-                "Facebook",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: const Color(0xff61677D),
-                    ),
-              ),
-            ],
-          ),
+        child: const _CustomAuthButton(
+          text: "Facebook",
+          asset: "assets/_Facebook.png",
         ),
       ),
     );
@@ -49,40 +36,50 @@ class GoogleButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: GestureDetector(
-        onTap: () async => {
-          await signInWithGoogle(),
-          if (context.mounted)
-            {
-              if (_auth.currentUser != null)
-                {
-                  context.router.push(const InitialRoute()),
-                }
+        onTap: () async {
+          await signInWithGoogle();
+          if (context.mounted) {
+            if (_auth.currentUser != null) {
+              context.router.push(const InitialRoute());
             }
+          }
         },
-        child: Container(
-          height: 56.h,
-          decoration: BoxDecoration(
-            color: const Color(0xffF5F9FE),
-            borderRadius: BorderRadius.circular(14.r),
-          ),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            width: 131.w,
-            height: 24.h,
-            child: Row(
-              children: [
-                Image.asset("assets/_Google.png"),
-                SizedBox(width: 16.w),
-                Text(
-                  "Google",
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium!
-                      .copyWith(color: const Color(0xff61677D)),
-                ),
-              ],
+        child: const _CustomAuthButton(
+          text: "Google",
+          asset: "assets/_Google.png",
+        ),
+      ),
+    );
+  }
+}
+
+class _CustomAuthButton extends StatelessWidget {
+  final String text;
+  final String asset;
+
+  const _CustomAuthButton({required this.text, required this.asset});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 56.h,
+      decoration: BoxDecoration(
+        color: Theme.of(context).inputDecorationTheme.fillColor,
+        borderRadius: BorderRadius.circular(14.r),
+      ),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        width: 131.w,
+        height: 24.h,
+        child: Row(
+          children: [
+            Image.asset(asset),
+            SizedBox(width: 16.w),
+            Text(
+              text,
+              style: Theme.of(context).textTheme.bodyMedium!,
             ),
-          ),
+          ],
         ),
       ),
     );

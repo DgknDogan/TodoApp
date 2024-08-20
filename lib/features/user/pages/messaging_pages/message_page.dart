@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_demo/utils/custom/custom_appbar.dart';
+import 'package:firebase_demo/utils/custom/custom_text_field.dart';
+import 'package:firebase_demo/utils/extension/datetime_extension.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -62,7 +64,7 @@ class _MessagePageState extends State<MessagePage> {
               },
               centerTitle: false,
               systemOverlayStyle: SystemUiOverlayStyle(
-                systemNavigationBarColor: Colors.blue.shade600,
+                systemNavigationBarColor: Theme.of(context).colorScheme.primary,
               ),
               title: "Message ${widget.friend.name}",
               actions: [
@@ -180,10 +182,13 @@ class _MessageCard extends StatelessWidget {
               color: message.friendUserUid != _auth.currentUser!.uid
                   ? Colors.blue.shade100
                   : Colors.green.shade100,
-              borderRadius: BorderRadius.circular(45.r),
+              borderRadius: BorderRadius.circular(15.r),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  message.friendUserUid == _auth.currentUser!.uid
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
               children: [
                 Text(
                   message.text,
@@ -191,7 +196,7 @@ class _MessageCard extends StatelessWidget {
                 ),
                 SizedBox(height: 3.h),
                 Text(
-                  message.time.toString(),
+                  message.time.mmed,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -231,38 +236,29 @@ class __SendMessageTextfieldState extends State<_SendMessageTextfield> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10.h),
-      decoration: BoxDecoration(color: Colors.blue.shade600),
+      decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary),
       child: Row(
         children: [
           SizedBox(width: 24.w),
           Expanded(
-            child: TextField(
-              style: const TextStyle(color: Colors.white),
-              cursorColor: Colors.white,
-              controller: textEditingController,
-              decoration: InputDecoration(
-                fillColor: Colors.blue.shade800,
-                filled: true,
-                hintText: "Send a message",
-                hintStyle: const TextStyle(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(45.r),
-                  borderSide: BorderSide.none,
-                ),
-              ),
+            child: CustomTextField(
+              textController: textEditingController,
+              hintText: "Send a message",
             ),
           ),
           SizedBox(width: 24.w),
           IconButton(
             style: ButtonStyle(
               backgroundColor: WidgetStatePropertyAll(
-                Colors.green.shade600,
+                Theme.of(context).colorScheme.secondary,
               ),
             ),
             onPressed: () async {
               if (textEditingController.text.isNotEmpty) {
                 context.read<MessageCubit>().sendMessageToFriend(
-                    textEditingController.text.trim(), widget.friend);
+                      textEditingController.text.trim(),
+                      widget.friend,
+                    );
                 textEditingController.clear();
               }
             },

@@ -6,8 +6,9 @@ import 'package:firebase_demo/features/user/data/profile_local_data.dart';
 import 'package:firebase_demo/features/user/model/chart_model.dart';
 import 'package:firebase_demo/features/user/model/todo_model.dart';
 import 'package:firebase_demo/features/auth/models/user_model.dart';
+import 'package:firebase_demo/utils/theme/themedata.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../services/notification_service.dart';
@@ -24,8 +25,10 @@ class HomeCubit extends Cubit<HomeState> {
             isLoading: false,
             upcomingTodos: [],
             newFriendRequestCount: 0,
+            theme: lightTheme,
           ),
         ) {
+    changeTheme();
     _isChartDeleted();
   }
 
@@ -33,6 +36,33 @@ class HomeCubit extends Cubit<HomeState> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _listener;
+
+  void changeTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    final getTheme = prefs.getBool("themeData");
+    if (getTheme != null) {
+      switch (getTheme) {
+        case false:
+          emit(state.copyWith(theme: lightTheme));
+          break;
+        case true:
+          emit(state.copyWith(theme: darkTheme));
+          break;
+      }
+    } else {
+      final brightness =
+          SchedulerBinding.instance.platformDispatcher.platformBrightness;
+      final isDarkMode = brightness == Brightness.dark;
+      switch (isDarkMode) {
+        case false:
+          emit(state.copyWith(theme: lightTheme));
+          break;
+        case true:
+          emit(state.copyWith(theme: darkTheme));
+          break;
+      }
+    }
+  }
 
   void cancelListener() async {
     await _listener?.cancel();
@@ -45,28 +75,8 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(isChartDeleted: prefs.getBool("isChartDeleted")));
   }
 
-  void initializeChartData() async {
-    final UserModel currentUser = await _localCache.getDataFromFirebase();
-    const Color redColor = Color(0xffEF3726);
-    const Color greenColor = Color(0xff00D23C);
-
-    final data = [
-      ChartData(
-        x: 'Phone Number',
-        y: 1,
-        color: currentUser.phoneNumber == null ? redColor : greenColor,
-      ),
-      ChartData(
-        x: 'Name',
-        y: 1,
-        color: currentUser.name == null ? redColor : greenColor,
-      ),
-      ChartData(
-        x: 'Surname',
-        y: 1,
-        color: currentUser.surname == null ? redColor : greenColor,
-      ),
-    ];
+  void getChartData() async {
+    final data = await ChartData.initChartData();
 
     emit(
       state.copyWith(data: data),
@@ -79,7 +89,7 @@ class HomeCubit extends Cubit<HomeState> {
         .doc(_auth.currentUser!.uid)
         .update({"name": name});
 
-    initializeChartData();
+    getChartData();
     countProfileData();
 
     await _auth.currentUser!.updateDisplayName(name);

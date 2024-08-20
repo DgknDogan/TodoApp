@@ -13,16 +13,12 @@ class HeaderText extends StatelessWidget {
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                color: const Color(0xff2A4ECA),
-              ),
+          style: Theme.of(context).textTheme.headlineLarge,
         ),
         SizedBox(height: 16.h),
         Text(
           text,
-          style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                color: const Color(0xff61677D),
-              ),
+          style: Theme.of(context).textTheme.headlineSmall,
           textAlign: TextAlign.center,
         ),
       ],

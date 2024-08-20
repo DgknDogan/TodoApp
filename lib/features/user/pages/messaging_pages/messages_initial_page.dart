@@ -21,8 +21,9 @@ class MessagesInitialPage extends StatelessWidget {
         builder: (context, state) {
           return Scaffold(
             appBar: CustomAppbar(
-              systemOverlayStyle: const SystemUiOverlayStyle(
-                systemNavigationBarColor: Colors.white,
+              systemOverlayStyle: SystemUiOverlayStyle(
+                systemNavigationBarColor:
+                    Theme.of(context).scaffoldBackgroundColor,
               ),
               title: "Message",
               centerTitle: false,

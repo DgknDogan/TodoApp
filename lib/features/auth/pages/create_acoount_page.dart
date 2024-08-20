@@ -1,14 +1,15 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_demo/routes/app_router.gr.dart';
-import 'package:firebase_demo/utils/custom/custom_elevated_button.dart';
-import 'package:firebase_demo/utils/custom/custom_text_button.dart';
-import 'package:firebase_demo/utils/custom/custom_text_field.dart';
+import 'package:firebase_demo/utils/custom/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../routes/app_router.gr.dart';
+import '../../../utils/custom/custom_elevated_button.dart';
+import '../../../utils/custom/custom_text_button.dart';
+import '../../../utils/custom/custom_text_field.dart';
 import '../widgets/alternative_auth_buttons.dart';
 import '../widgets/divider.dart';
 import '../widgets/flushbars.dart';
@@ -34,7 +35,7 @@ class CreateAccountPage extends HookWidget {
               const Duration(seconds: 2),
               () {
                 context.read<RegisterCubit>().initializeState();
-                context.router.push(const LoginRoute());
+                context.router.replace(const LoginRoute());
                 mailController.clear();
                 passwordController.clear();
               },
@@ -46,15 +47,17 @@ class CreateAccountPage extends HookWidget {
         },
         builder: (context, state) {
           return Scaffold(
+            appBar: const CustomAppbar(
+              leadingIcon: SizedBox(),
+            ),
             resizeToAvoidBottomInset: false,
-            backgroundColor: Colors.white,
             body: Container(
               width: width,
               margin: EdgeInsets.symmetric(horizontal: 24.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: 80.h),
+                  // SizedBox(height: 80.h),
                   const HeaderText(
                       title: "Sign Up",
                       text:
@@ -156,7 +159,7 @@ class _SignUpFormSectionState extends State<_SignUpFormSection> {
                     ),
                   ),
                 ),
-                SizedBox(height: 12.h),
+                SizedBox(height: 10.h),
                 const _CheckBoxRow()
               ],
             ),
@@ -188,7 +191,7 @@ class _CheckBoxRow extends StatelessWidget {
             GestureDetector(
               onTap: () => showBottomSheet(
                 context: context,
-                backgroundColor: Colors.grey.shade200,
+                showDragHandle: true,
                 builder: (context) {
                   return Container(
                     height: 300.h,
@@ -196,16 +199,6 @@ class _CheckBoxRow extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        IconButton(
-                          style: const ButtonStyle(
-                            padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          onPressed: () {
-                            context.router.maybePop();
-                          },
-                          icon: const Icon(Icons.close),
-                        ),
                         SizedBox(height: 10.h),
                         Text(
                           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet tellus nec ornare hendrerit. Vivamus a arcu tellus. Sed ut ex ut nisi porttitor convallis. Vestibulum efficitur metus id tristique auctor. Mauris mollis orci at leo luctus ornare. Ut elementum sapien non elit congue ullamcorper. Proin nec ex in nisl vestibulum consectetur. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
@@ -217,16 +210,18 @@ class _CheckBoxRow extends StatelessWidget {
                 },
               ),
               child: Text.rich(
-                const TextSpan(
+                TextSpan(
                   children: [
-                    TextSpan(text: "I’m agree to "),
+                    const TextSpan(text: "I’m agree to "),
                     TextSpan(
-                        text: "The Terms of Service ",
-                        style: TextStyle(color: Color(0xff3461FD))),
-                    TextSpan(text: "and"),
+                      text: "The Terms of Service ",
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const TextSpan(text: "and"),
                     TextSpan(
-                        text: " Privacy Policy",
-                        style: TextStyle(color: Color(0xff3461FD))),
+                      text: " Privacy Policy",
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
                   ],
                 ),
                 style: Theme.of(context)

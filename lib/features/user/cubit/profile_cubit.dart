@@ -36,7 +36,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         .doc(_auth.currentUser!.uid)
         .update({"name": name});
 
-    homeCubit.initializeChartData();
+    homeCubit.getChartData();
     homeCubit.countProfileData();
 
     _auth.currentUser!.updateDisplayName(name);
@@ -50,7 +50,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         .doc(_auth.currentUser!.uid)
         .update({"surname": surname});
 
-    homeCubit.initializeChartData();
+    homeCubit.getChartData();
     homeCubit.countProfileData();
 
     emit(state.copyWith(surname: surname));
@@ -62,7 +62,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         .doc(_auth.currentUser!.uid)
         .update({"phoneNumber": phoneNumber});
 
-    homeCubit.initializeChartData();
+    homeCubit.getChartData();
     homeCubit.countProfileData();
 
     emit(state.copyWith(phoneNumber: phoneNumber));

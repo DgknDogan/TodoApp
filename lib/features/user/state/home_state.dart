@@ -13,6 +13,8 @@ final class HomeState {
   final UserModel? secondUser;
   final UserModel? thirdUser;
 
+  final ThemeData theme;
+
   HomeState({
     required this.data,
     required this.count,
@@ -20,6 +22,7 @@ final class HomeState {
     required this.upcomingTodos,
     required this.newFriendRequestCount,
     required this.isLoading,
+    required this.theme,
     this.userName,
     this.firstUser,
     this.secondUser,
@@ -37,18 +40,21 @@ final class HomeState {
     UserModel? thirdUser,
     int? newFriendRequestCount,
     bool? isLoading,
+    ThemeData? theme,
   }) {
     return HomeState(
-        data: data ?? this.data,
-        count: count ?? this.count,
-        isChartDeleted: isChartDeleted ?? this.isChartDeleted,
-        upcomingTodos: upcomingTodos ?? this.upcomingTodos,
-        userName: userName ?? this.userName,
-        firstUser: firstUser ?? this.firstUser,
-        secondUser: secondUser ?? this.secondUser,
-        thirdUser: thirdUser ?? this.thirdUser,
-        newFriendRequestCount:
-            newFriendRequestCount ?? this.newFriendRequestCount,
-        isLoading: isLoading ?? this.isLoading);
+      data: data ?? this.data,
+      count: count ?? this.count,
+      isChartDeleted: isChartDeleted ?? this.isChartDeleted,
+      upcomingTodos: upcomingTodos ?? this.upcomingTodos,
+      userName: userName ?? this.userName,
+      firstUser: firstUser ?? this.firstUser,
+      secondUser: secondUser ?? this.secondUser,
+      thirdUser: thirdUser ?? this.thirdUser,
+      newFriendRequestCount:
+          newFriendRequestCount ?? this.newFriendRequestCount,
+      isLoading: isLoading ?? this.isLoading,
+      theme: theme ?? this.theme,
+    );
   }
 }
